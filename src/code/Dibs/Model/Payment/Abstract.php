@@ -165,34 +165,6 @@ abstract class Made_Dibs_Model_Payment_Abstract
     }
 
     /**
-     * Calculates the deprecated MD5 hash verification key, please use HMAC
-     * in the DIBS administation interface instead
-     *
-     * @param array $fields
-     * @return type
-     * @throws Mage_Payment_Exception
-     */
-    public final function calculateMd5Key($fields)
-    {
-        if (!is_array($fields)) {
-            throw new Mage_Payment_Exception('The DIBS MD5 fields has to be an array');
-        }
-
-        $md5Key1 = str_replace(' ', '', $this->getConfigData('md5_key1'));
-        $md5Key2 = str_replace(' ', '', $this->getConfigData('md5_key2'));
-
-        if (empty($md5Key1) || empty($md5Key2)) {
-            throw new Mage_Payment_Exception('Please set up both DIBS MD5 keys in System / Config / Payment Methods');
-        }
-
-        return md5($md5Key2 . md5($md5Key1 .
-                'merchant=' . $fields['merchant'] .
-                '&orderid=' . $fields['orderId'] .
-                '&currency=' . $fields['currency'] .
-                '&amount=' . $fields['amount']));
-    }
-
-    /**
      * We always just place a simple order, waiting for gateway action.
      *
      * Also, we shouldn't know/guess if it's an authorization or capture
@@ -203,5 +175,34 @@ abstract class Made_Dibs_Model_Payment_Abstract
     public function getConfigPaymentAction()
     {
         return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
+    }
+
+    /**
+     * Capture an authorized payment. This should only be available if there
+     * is an open authorized transaction already.
+     *
+     * Requires API details entered in the admin interface
+     *
+     * @param Varien_Object $payment
+     * @param int|float $amount
+     */
+    public function capture(Varien_Object $payment, $amount)
+    {
+        die('capture');
+        return $this;
+    }
+
+    /**
+     * Void previously *authorized* payment.
+     *
+     * Requires API details entered in the admin interface
+     *
+     * @param Varien_Object $payment
+     * @return Mage_Payment_Model_Abstract
+     */
+    public function void(Varien_Object $payment)
+    {
+        die('void');
+        return $this;
     }
 }

@@ -12,33 +12,6 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
 
     /**
-     * Capture an authorized payment. This should only be available if there
-     * is an open authorized transaction already.
-     *
-     * Requires API details entered in the admin interface
-     *
-     * @param Varien_Object $payment
-     * @param int|float $amount
-     */
-    public function capture(Varien_Object $payment, $amount)
-    {
-        return $this;
-    }
-
-    /**
-     * Void previously *authorized* payment.
-     *
-     * Requires API details entered in the admin interface
-     *
-     * @param Varien_Object $payment
-     * @return Mage_Payment_Model_Abstract
-     */
-    public function void(Varien_Object $payment)
-    {
-        return $this;
-    }
-
-    /**
      * Order placement gateway form POST redirect in-the-middle URL
      *
      * @return string
@@ -132,16 +105,8 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
             $fields->setData('captureNow', '1');
         }
 
-        switch ($this->getConfigData('key_calculation_method')) {
-            case 'hmac':
-                $hmac = $this->calculateMac($fields->toArray());
-                $fields->setData('MAC', $hmac);
-                break;
-            case 'md5':
-                $md5key = $this->calculateMd5Key($fields->toArray());
-                $fields->setData('md5key', $md5key);
-                break;
-        }
+        $hmac = $this->calculateMac($fields->toArray());
+        $fields->setData('MAC', $hmac);
 
         return $fields;
     }

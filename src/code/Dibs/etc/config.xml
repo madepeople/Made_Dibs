@@ -60,7 +60,6 @@
         <payment>
             <made_dibs>
                 <active>0</active>
-                <key_calculation_method>hmac</key_calculation_method>
                 <title>DIBS Payment Window</title>
                 <test>1</test>
                 <payment_type>DIBS</payment_type>
