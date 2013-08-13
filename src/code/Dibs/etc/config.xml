@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <modules>
-        <Made_Streamcheckout>
-            <version>1.2.0</version>
-        </Made_Streamcheckout>
+        <Made_Dibs>
+            <version>1.0.0</version>
+        </Made_Dibs>
     </modules>
     <global>
         <translate>
@@ -56,27 +56,6 @@
             </sales_model_service_quote_submit_before>
         </events>
     </frontend>
-    <adminhtml>
-        <acl>
-            <resources>
-                <admin>
-                    <children>
-                        <system>
-                            <children>
-                                <config>
-                                    <children>
-                                        <streamcheckout>
-                                            <title>Streamcheckout Section</title>
-                                        </streamcheckout>
-                                    </children>
-                                </config>
-                            </children>
-                        </system>
-                    </children>
-                </admin>
-            </resources>
-        </acl>
-    </adminhtml>
     <default>
         <payment>
             <made_dibs>
