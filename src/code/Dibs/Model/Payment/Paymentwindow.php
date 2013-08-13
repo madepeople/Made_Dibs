@@ -24,7 +24,10 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
     }
 
     /**
-     * This will fail if an HTTP 423 code is returned.
+     * DIBS JSON endpoint API call method.
+     *
+     * This will fail if an HTTP 423 code is returned. It means we need to try
+     * again later.
      *
      * @param type $method
      * @param type $parameters
@@ -53,6 +56,9 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
 
         $httpClient->setMethod(Zend_Http_Client::POST);
         $response = $httpClient->request();
+        if ($response->getStatus() !== 200) {
+            Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getCode());
+        }
 
         $result = Mage::helper('core')->jsonDecode($response->getBody());
 
