@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <payment>
+            <groups>
+                <made_dibs translate="label" module="made_dibs">
+                    <label>DIBS Payment Window</label>
+                    <sort_order>670</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <test translate="label">
+                            <label>Test Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </test>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <merchant_id translate="label">
+                            <label>Merchant ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </merchant_id>
+                        <key_calculation_method translate="label comment">
+                            <label>Calculation Method</label>
+                            <comment><![CDATA[The key calculation method used to verify payments. You should <strong>know</strong> which one to use. If you don't, please contact DIBS support.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>made_dibs/system_config_source_calculationmethod</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </key_calculation_method>
+                        <hmac_key translate="label comment">
+                            <label>HMAC Key</label>
+                            <comment>Retrieved from the DIBS administration interface (K)</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </hmac_key>
+                        <api_username translate="label comment">
+                            <label>API Username</label>
+                            <comment><![CDATA[<strong>Caution:</strong> If you don't enable "Capture Payments Directly" below, <i><strong>NO</strong></i> funds will be charged from your customers unless you set the API information here and capture the invoices in the order admin. If you don't capture the invoices in Magento, reservations have to be captured in the DIBS administration panel.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_username>
+                        <api_password translate="label">
+                            <label>API Password</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_password>
+                        <md5_key1 translate="label comment">
+                            <label>MD5 Key 1</label>
+                            <comment>The MD5 key setup is the old payment verification method, available for legacy reasons. You don't need to fill these in if you use HMAC calculcation.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </md5_key1>
+                        <md5_key2 translate="label">
+                            <label>MD5 Key 2</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </md5_key2>
+                        <capture_now translate="label comment">
+                            <label>Capture Payments Directly</label>
+                            <comment><![CDATA[When set to 'No', payments will only be authorized in the gateway, and captured when an invoice is captured online. It also creates room for refunds and voids. The easiest and most common method is to set this to 'Yes'.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </capture_now>
+                        <auto_capture_enabled translate="label comment">
+                            <label>Enable Auto Capture</label>
+                            <comment>Requires API details set up. Automatically captures authorizations that have been idle (see "Days Until Auto Capture")</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_capture_enabled>
+                        <auto_capture_days_ago translate="label comment">
+                            <label>Days Until Auto Capture</label>
+                            <comment>Number of days for how old an order should be before attempting to auto capture it</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_capture_days_ago>
+                        <test translate="label">
+                            <label>Test Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </test>
+                        <payment_type translate="label">
+                            <label>DIBS Payment Type</label>
+                            <comment><![CDATA[See http://tech.dibspayment.com/toolbox/cardtype_/_paytype/]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </payment_type>
+                    </fields>
+                </made_dibs>
+            </groups>
+        </payment>
+    </sections>
+</config>
