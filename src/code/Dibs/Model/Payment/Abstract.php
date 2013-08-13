@@ -7,9 +7,12 @@ abstract class Made_Dibs_Model_Payment_Abstract
 {
     protected $_isGateway = true;
     protected $_canCapture = true;
+    protected $_canCapturePartial = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
     protected $_canVoid = true;
-    protected $_canManageRecurringProfiles = false;
     protected $_canOrder = true;
+    protected $_canManageRecurringProfiles = false;
 
     /**
      * Currency codes mapped by code and float precision
@@ -175,34 +178,5 @@ abstract class Made_Dibs_Model_Payment_Abstract
     public function getConfigPaymentAction()
     {
         return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
-    }
-
-    /**
-     * Capture an authorized payment. This should only be available if there
-     * is an open authorized transaction already.
-     *
-     * Requires API details entered in the admin interface
-     *
-     * @param Varien_Object $payment
-     * @param int|float $amount
-     */
-    public function capture(Varien_Object $payment, $amount)
-    {
-        die('capture');
-        return $this;
-    }
-
-    /**
-     * Void previously *authorized* payment.
-     *
-     * Requires API details entered in the admin interface
-     *
-     * @param Varien_Object $payment
-     * @return Mage_Payment_Model_Abstract
-     */
-    public function void(Varien_Object $payment)
-    {
-        die('void');
-        return $this;
     }
 }

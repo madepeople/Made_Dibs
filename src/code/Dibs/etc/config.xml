@@ -60,6 +60,7 @@
         <payment>
             <made_dibs>
                 <active>0</active>
+                <reauth_expired>1</reauth_expired>
                 <title>DIBS Payment Window</title>
                 <test>1</test>
                 <payment_type>DIBS</payment_type>
