@@ -7,21 +7,9 @@
  */
 class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abstract
 {
-    protected $_code = 'made_dibs';
-    protected $_soapClient;
+    protected $_code = 'made_dibs_paymentwindow';
 
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
-
-    /**
-     * Get the SOAP endpoint client for concurrent API calls
-     */
-    protected function _getSoapClient()
-    {
-        if (!isset($this->_soapClient)) {
-            $this->_soapClient = new SoapClient('https://api.dibspayment.com/merchant/v1/SOAP/Transaction?wsdl');
-        }
-        return $this->_soapClient;
-    }
 
     /**
      * DIBS JSON endpoint API call method.
