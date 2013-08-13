@@ -99,8 +99,10 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
      */
     public function callbackAction()
     {
-        $fields = $this->getRequest()->getPost();
         $order = $this->_initOrder();
+        if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
+            throw new Mage_Payment_Exception('Order is not in review state. It\'s possible that the payment has already been registered.');
+        }
 
         $methodInstance = $order->getPayment()
                 ->getMethodInstance();
@@ -109,6 +111,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             throw new Mage_Payment_Exception('Order isn\'t a DIBS order');
         }
 
+        $fields = $this->getRequest()->getPost();
         $mac = $methodInstance->calculateMac($fields);
         if ($mac != $fields['MAC']) {
             throw new Mage_Payment_Exception('MAC verification failed for order "' . $fields['orderID'] . '"');
@@ -131,7 +134,5 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
         }
 
         $order->save();
-
-        return true;
     }
 }
