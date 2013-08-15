@@ -63,7 +63,6 @@
                 <reauth_expired>1</reauth_expired>
                 <title>DIBS Payment Window</title>
                 <test>1</test>
-                <payment_type>DIBS</payment_type>
                 <capture_now>1</capture_now>
                 <model>made_dibs/payment_paymentwindow</model>
             </made_dibs>

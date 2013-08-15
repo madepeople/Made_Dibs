@@ -1,0 +1,12 @@
+{
+    "name": "madepeople/Made_Dibs",
+    "type": "magento-module",
+    "license": "4-clause BSD",
+    "description": "Magento DIBS Implementation",
+    "authors": [
+        {
+            "name": "Jonathan Selander",
+            "email":"jonathan@madepeople.se"
+        }
+    ]
+}
