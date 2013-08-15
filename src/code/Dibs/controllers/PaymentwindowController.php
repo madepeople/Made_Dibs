@@ -95,46 +95,61 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
     /**
      * Handle the callback information from DIBS, needs to be synchronous in
      * case the gateway sends the user to the success page the same time as
-     * the DIBS callback calls us
+     * the DIBS callback calls us.
+     *
+     * We have everything within a transaction to prevent race conditions.
+     *
+     * @return void
      */
     public function callbackAction()
     {
-        $order = $this->_initOrder();
-        if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-            // Order is not in review state. It's possible that the payment has
-            // already been registered via a callback or similar.
-            return;
+        $write = Mage::getSingleton('core/resource')
+                    ->getConnection('core_write');
+
+        try {
+            $write->beginTransaction();
+            $order = $this->_initOrder();
+            if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
+                // Order is not in review state. It's possible that the payment has
+                // already been registered via a callback or similar.
+                $write->rollback();
+                return;
+            }
+
+            $methodInstance = $order->getPayment()
+                    ->getMethodInstance();
+
+            if (!($methodInstance instanceof Made_Dibs_Model_Payment_Paymentwindow)) {
+                throw new Mage_Payment_Exception('Order isn\'t a DIBS order');
+            }
+
+            $fields = $this->getRequest()->getPost();
+            $mac = $methodInstance->calculateMac($fields);
+            if ($mac != $fields['MAC']) {
+                throw new Mage_Payment_Exception('MAC verification failed for order "' . $fields['orderID'] . '"');
+            }
+
+            $payment = $order->getPayment();
+            $payment->setTransactionId($fields['transaction'])
+                    ->setIsTransactionApproved(true)
+                    ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
+
+            if (!$methodInstance->getConfigData('capture_now')) {
+                // Leave the transaction open for captures/refunds/etc
+                $payment->setPreparedMessage('DIBS - Payment Authorized.');
+                $payment->setIsTransactionClosed(0);
+                $payment->authorize(false, $order->getGrandTotal());
+            } else {
+                // Order has been fully paid, we can't do any extra API magic
+                $payment->setPreparedMessage('DIBS - Payment Successful.');
+                $payment->registerCaptureNotification($order->getGrandTotal());
+            }
+
+            $order->save();
+            $write->commit();
+        } catch (Exception $e) {
+            $write->rollback();
+            throw $e;
         }
-
-        $methodInstance = $order->getPayment()
-                ->getMethodInstance();
-
-        if (!($methodInstance instanceof Made_Dibs_Model_Payment_Paymentwindow)) {
-            throw new Mage_Payment_Exception('Order isn\'t a DIBS order');
-        }
-
-        $fields = $this->getRequest()->getPost();
-        $mac = $methodInstance->calculateMac($fields);
-        if ($mac != $fields['MAC']) {
-            throw new Mage_Payment_Exception('MAC verification failed for order "' . $fields['orderID'] . '"');
-        }
-
-        $payment = $order->getPayment();
-        $payment->setTransactionId($fields['transaction'])
-                ->setIsTransactionApproved(true)
-                ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
-
-        if (!$methodInstance->getConfigData('capture_now')) {
-            // Leave the transaction open for captures/refunds/etc
-            $payment->setPreparedMessage('DIBS - Payment Authorized.');
-            $payment->setIsTransactionClosed(0);
-            $payment->authorize(false, $order->getGrandTotal());
-        } else {
-            // Order has been fully paid, we can't do any extra API magic
-            $payment->setPreparedMessage('DIBS - Payment Successful.');
-            $payment->registerCaptureNotification($order->getGrandTotal());
-        }
-
-        $order->save();
     }
 }
