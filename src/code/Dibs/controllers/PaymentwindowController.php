@@ -54,7 +54,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             $this->_redirect('checkout/onepage/success', array('_secure' => true));
         } catch (Exception $e) {
             $order = $this->_initOrder();
-            $order->addStatusHistoryComment('CAUTION! This order can be paid, please inspect the DIBS administration panel. Error when returning from gateway: ' . $e->getMessage());
+            $order->addStatusHistoryComment('CAUTION! This order could have been paid, please inspect the DIBS administration panel. Error when returning from gateway: ' . $e->getMessage());
             $order->cancel()
                     ->save();
 
@@ -101,7 +101,9 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
     {
         $order = $this->_initOrder();
         if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-            throw new Mage_Payment_Exception('Order is not in review state. It\'s possible that the payment has already been registered.');
+            // Order is not in review state. It's possible that the payment has
+            // already been registered via a callback or similar.
+            return;
         }
 
         $methodInstance = $order->getPayment()
