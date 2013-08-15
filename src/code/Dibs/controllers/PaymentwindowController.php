@@ -99,6 +99,8 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
      *
      * We have everything within a transaction to prevent race conditions.
      *
+     * @TODO: Use row-level locking on the order row instead, so we can scale
+     *
      * @return void
      */
     public function callbackAction()
