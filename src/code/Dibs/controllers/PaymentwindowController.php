@@ -55,7 +55,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
         } catch (Exception $e) {
             $order = $this->_initOrder();
             $order->addStatusHistoryComment('CAUTION! This order can be paid, please inspect the DIBS administration panel. Error when returning from gateway: ' . $e->getMessage());
-            $order->hold()
+            $order->cancel()
                     ->save();
 
             Mage::getSingleton('core/session')->addError($e->getMessage());
