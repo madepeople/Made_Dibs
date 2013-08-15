@@ -35,7 +35,7 @@ class Made_Dibs_Block_Paymentwindow_Redirect extends Mage_Core_Block_Abstract
         $html = '<html><body>';
         $html.= $this->__('You will be redirected to the DIBS website in a few seconds.');
         $html.= $form->toHtml();
-//        $html.= '<script type="text/javascript">document.getElementById("made_dibs_paymentwindow").submit();</script>';
+        $html.= '<script type="text/javascript">document.getElementById("made_dibs_paymentwindow").submit();</script>';
         $html.= '</body></html>';
 
         return $html;

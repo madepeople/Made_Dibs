@@ -118,6 +118,9 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
         );
 
         $this->_apiCall('RefundTransaction', $parameters);
+        
+        $payment->setTransactionId("{$transactionId}-refund")
+                ->setTransactionIsClosed(true);
 
         return $this;
     }
