@@ -2,8 +2,8 @@
 /**
  * @author jonathan@madepeople.se
  */
-abstract class Made_Dibs_Model_Payment_Abstract
-    extends Mage_Payment_Model_Method_Abstract
+abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Method_Abstract
+    implements Mage_Payment_Model_Recurring_Profile_MethodInterface
 {
     protected $_isGateway = true;
     protected $_canCapture = true;
@@ -12,7 +12,7 @@ abstract class Made_Dibs_Model_Payment_Abstract
     protected $_canRefundInvoicePartial = true;
     protected $_canVoid = true;
     protected $_canOrder = true;
-    protected $_canManageRecurringProfiles = false;
+    protected $_canManageRecurringProfiles = true;
 
     /**
      * Currency codes mapped by code and float precision

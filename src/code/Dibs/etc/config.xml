@@ -58,14 +58,16 @@
     </frontend>
     <default>
         <payment>
-            <made_dibs>
+            <made_dibs_paymentwindow>
                 <active>0</active>
                 <reauth_expired>1</reauth_expired>
                 <title>DIBS Payment Window</title>
                 <test>1</test>
                 <capture_now>1</capture_now>
+                <order_status>pending</order_status>
+                <allowspecific>0</allowspecific>
                 <model>made_dibs/payment_paymentwindow</model>
-            </made_dibs>
+            </made_dibs_paymentwindow>
         </payment>
     </default>
 </config>

@@ -213,10 +213,13 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
         $language = Mage::getStoreConfig('general/locale/code')
                  ?: 'en_GB';
 
+
+        $amount = $this->formatAmount($order->getGrandTotal(), $order->getOrderCurrencyCode());
+
         $fields = new Varien_Object;
         $fields->setMerchant($this->getConfigData('merchant_id'))
                 ->setCurrency($this->getDibsCurrencyCode($order->getOrderCurrencyCode()))
-                ->setAmount($order->getGrandTotal()*100)
+                ->setAmount($amount)
                 ->setLanguage($language)
                 ->setData('orderId', $order->getIncrementId())
                 ->setData('acceptReturnUrl', $this->getReturnUrl())
@@ -236,9 +239,127 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
             $fields->setData('capturenow', '1');
         }
 
+        if ($order->isNominal()) {
+            // Create a ticket for recurring profiles
+            $fields->setData('createTicketAndAuth', '1');
+        }
+
+        $billingAddress = $order->getBillingAddress();
+        $fields->setData('billingFirstName', $billingAddress->getFirstname());
+        $fields->setData('billingLastName', $billingAddress->getLastname());
+        $fields->setData('billingAddress', $billingAddress->getStreet(1));
+
+        $street2 = $billingAddress->getStreet(2);
+        if (!empty($street2)) {
+            $fields->setData('billingAddress2', $street2);
+        }
+
+        $fields->setData('billingPostalCode', $billingAddress->getPostcode());
+        $fields->setData('billingPostalPlace', $billingAddress->getCity());
+        $fields->setData('billingEmail', $order->getCustomerEmail());
+        $fields->setData('billingMobile', $order->getTelephone());
+
+        $fields->setData('oiTypes', 'QUANTITY;DESCRIPTION;AMOUNT;ITEMID;VATAMOUNT');
+        $fields->setData('oiNames', 'Quantity;Product;Amount;SKU;VatAmount');
+        $i = 1;
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getParentItemId()) {
+                // Only pass main products
+                continue;
+            }
+
+            $row = (int)$item->getQtyOrdered() . ';' .
+                    $item->getName() . ';' .
+                    $this->formatAmount($item->getRowTotalInclTax(), $order->getOrderCurrencyCode()) . ';' .
+                    $item->getSku() . ';' .
+                    $this->formatAmount($item->getTaxAmount(), $order->getOrderCurrencyCode());
+
+            $fields->setData('oiRow' . $i++, $row);
+        }
+
+        // Shipping, tax and discounts needs to be separate rows
+        $row = '1;' . $order->getShippingDescription() . ';' .
+                $this->formatAmount($order->getShippingInclTax(), $order->getOrderCurrencyCode()) . ';' .
+                $order->getShippingMethod() . ';' .
+                $this->formatAmount($item->getShippingTaxAmount(), $order->getOrderCurrencyCode());
+        $fields->setData('oiRow' . $i++, $row);
+
+        $discountAmount = $order->getDiscountAmount();
+        if (abs($discountAmount)) {
+            $row = '1;' . $order->getDiscountDescription() . ';' .
+                    $this->formatAmount($discountAmount, $order->getOrderCurrencyCode()) . ';' .
+                    'discount;' .
+                    0;
+            $fields->setData('oiRow' . $i++, $row);
+        }
+
         $hmac = $this->calculateMac($fields->toArray());
         $fields->setData('MAC', $hmac);
 
         return $fields;
+    }
+
+    /**
+     * Validate data
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     * @throws Mage_Core_Exception
+     */
+    public function validateRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+
+    }
+
+    /**
+     * Submit to the gateway
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     * @param Mage_Payment_Model_Info $paymentInfo
+     */
+    public function submitRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile, Mage_Payment_Model_Info $paymentInfo)
+    {
+
+    }
+
+    /**
+     * Fetch details
+     *
+     * @param string $referenceId
+     * @param Varien_Object $result
+     */
+    public function getRecurringProfileDetails($referenceId, Varien_Object $result)
+    {
+        // We can't do this
+        return $this;
+    }
+
+    /**
+     * Check whether can get recurring profile details
+     *
+     * @return bool
+     */
+    public function canGetRecurringProfileDetails()
+    {
+        return false;
+    }
+
+    /**
+     * Update data
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     */
+    public function updateRecurringProfile(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+
+    }
+
+    /**
+     * Manage status
+     *
+     * @param Mage_Payment_Model_Recurring_Profile $profile
+     */
+    public function updateRecurringProfileStatus(Mage_Payment_Model_Recurring_Profile $profile)
+    {
+
     }
 }
