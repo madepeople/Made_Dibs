@@ -1,6 +1,7 @@
 <?php
 /**
- * DIBS related helper functions
+ * DIBS related helper functions, right now it's basically used for future
+ * translations.
  *
  * @author jonathan@madepeople.se
  */
