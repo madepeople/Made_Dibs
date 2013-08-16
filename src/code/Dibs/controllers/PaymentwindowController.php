@@ -136,7 +136,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                     ->setIsTransactionApproved(true)
                     ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
 
-            if (!$methodInstance->getConfigData('capture_now')) {
+            if (empty($fields['capturenow'])) {
                 // Leave the transaction open for captures/refunds/etc
                 $payment->setPreparedMessage('DIBS - Payment Authorized.');
                 $payment->setIsTransactionClosed(0);
@@ -145,6 +145,11 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                 // Order has been fully paid, we can't do any extra API magic
                 $payment->setPreparedMessage('DIBS - Payment Successful.');
                 $payment->registerCaptureNotification($order->getGrandTotal());
+            }
+
+            $newOrderStatus = $methodInstance->getConfigData('order_status');
+            if (!empty($newOrderStatus)) {
+                $order->setStatus($newOrderStatus);
             }
 
             $order->save();
