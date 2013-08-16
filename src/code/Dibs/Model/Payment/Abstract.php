@@ -113,7 +113,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     public function formatAmount($amount, $currencyCode)
     {
         $precision = $this->getCurrencyPrecision($currencyCode);
-        $amount = round($amount, $precision) * pow(10, $precision);
+        $amount = bcmul(round($amount, $precision), bcpow(10, $precision));
         return (int)$amount;
     }
 

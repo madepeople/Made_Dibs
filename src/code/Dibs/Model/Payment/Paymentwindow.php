@@ -205,13 +205,12 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
         $order = Mage::getModel('sales/order')
                 ->loadByIncrementId($orderIncrementId);
 
-        if (!$order) {
+        if (!$order || !$order->getId()) {
             throw new Mage_Payment_Exception('Cannot load order with increment id "' . $orderIncrementId. '"');
         }
 
         $language = Mage::getStoreConfig('general/locale/code')
                  ?: 'en_GB';
-
 
         $amount = $this->formatAmount($order->getGrandTotal(), $order->getOrderCurrencyCode());
 
