@@ -76,8 +76,6 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
      * Capture an authorized payment. This should only be available if there
      * is an open authorized transaction already.
      *
-     * Requires API details entered in the admin interface
-     *
      * @param Varien_Object $payment
      * @param int|float $amount
      */
@@ -127,8 +125,6 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
 
     /**
      * Void previously *authorized* payment.
-     *
-     * Requires API details entered in the admin interface
      *
      * @param Varien_Object $payment
      * @return Mage_Payment_Model_Abstract
