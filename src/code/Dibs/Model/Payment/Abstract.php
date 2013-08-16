@@ -120,8 +120,8 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     /**
      * Convert a hexadecimal representation to a string representation
      *
-     * @param type $hex
-     * @return type
+     * @param string $hex
+     * @return string
      */
     protected final function _hexToString($hex)
     {
