@@ -237,11 +237,6 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
             $fields->setData('capturenow', '1');
         }
 
-        if ($order->isNominal()) {
-            // Create a ticket for recurring profiles
-            $fields->setData('createTicketAndAuth', '1');
-        }
-
         $billingAddress = $order->getBillingAddress();
         $fields->setData('billingFirstName', $billingAddress->getFirstname());
         $fields->setData('billingLastName', $billingAddress->getLastname());
