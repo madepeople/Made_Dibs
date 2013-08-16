@@ -257,8 +257,9 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
         $fields->setData('billingEmail', $order->getCustomerEmail());
         $fields->setData('billingMobile', $order->getTelephone());
 
-        $fields->setData('oiTypes', 'QUANTITY;DESCRIPTION;AMOUNT;ITEMID;VATAMOUNT');
-        $fields->setData('oiNames', 'Quantity;Product;Amount;SKU;VatAmount');
+        $fields->setData('oiTypes', 'QUANTITY;DESCRIPTION;AMOUNT;ITEMID');
+        $fields->setData('oiNames', 'Quantity;Product;Amount;SKU');
+
         $i = 1;
         foreach ($order->getAllItems() as $item) {
             if ($item->getParentItemId()) {
@@ -269,25 +270,29 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
             $row = (int)$item->getQtyOrdered() . ';' .
                     $item->getName() . ';' .
                     $this->formatAmount($item->getRowTotalInclTax(), $order->getOrderCurrencyCode()) . ';' .
-                    $item->getSku() . ';' .
-                    $this->formatAmount($item->getTaxAmount(), $order->getOrderCurrencyCode());
+                    $item->getSku();
 
             $fields->setData('oiRow' . $i++, $row);
         }
 
-        // Shipping, tax and discounts needs to be separate rows
-        $row = '1;' . $order->getShippingDescription() . ';' .
-                $this->formatAmount($order->getShippingInclTax(), $order->getOrderCurrencyCode()) . ';' .
-                $order->getShippingMethod() . ';' .
-                $this->formatAmount($item->getShippingTaxAmount(), $order->getOrderCurrencyCode());
-        $fields->setData('oiRow' . $i++, $row);
+        // Shipping, tax and discounts needs to be separate rows, use the
+        // quote totals to determine what to print and exclude things like
+        // tax,
+        $quoteId = $order->getQuoteId();
+        $quote = Mage::getModel('sales/quote')->load($quoteId);
+        $quote->collectTotals();
 
-        $discountAmount = $order->getDiscountAmount();
-        if (abs($discountAmount)) {
-            $row = '1;' . $order->getDiscountDescription() . ';' .
-                    $this->formatAmount($discountAmount, $order->getOrderCurrencyCode()) . ';' .
-                    'discount;' .
-                    0;
+        $totalsToExclude = array('grand_total', 'subtotal', 'tax', 'klarna_tax');
+
+        foreach ($quote->getTotals() as $code => $total) {
+            if (in_array($code, $totalsToExclude)) {
+                continue;
+            }
+
+            $row = '1;' . $total->getTitle() . ';' .
+                    $this->formatAmount($total->getValue(), $order->getOrderCurrencyCode()) . ';' .
+                    $total->getCode();
+
             $fields->setData('oiRow' . $i++, $row);
         }
 
