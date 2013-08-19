@@ -1,16 +1,16 @@
 <_>
-   <form_key>s5MGauPa3mDfKlwc</form_key>
-   <name>Made_Menu</name>
+   <form_key>H1UpmoO4v6Y1vpjy</form_key>
+   <name>Made_Dibs</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
       <version_ids>1</version_ids>
    </version_ids>
-   <summary>Made_Menu</summary>
-   <description>Made_Menu</description>
+   <summary>Made_Dibs</summary>
+   <description>Made_Dibs</description>
    <license>4-clause BSD License</license>
    <license_uri/>
-   <version>1.1.3</version>
+   <version>1.0.0</version>
    <stability>stable</stability>
    <notes>N/A</notes>
    <authors>
@@ -41,7 +41,7 @@
             <max/>
          </max>
          <files>
-            <files>                                                                                            </files>
+            <files>                                                                                              </files>
          </files>
       </package>
       <extension>
@@ -61,48 +61,23 @@
          <target>magelocal</target>
          <target>magecommunity</target>
          <target>mageetc</target>
-         <target>magedesign</target>
-         <target>magedesign</target>
-         <target>magedesign</target>
-         <target>mageweb</target>
-         <target>magedesign</target>
       </target>
       <path>
          <path/>
-         <path>Made/Menu</path>
-         <path>modules/Made_Menu.xml</path>
-         <path>frontend/base/default/layout/mademenu.xml</path>
-         <path>adminhtml/default/default/layout/mademenu.xml</path>
-         <path>frontend/base/default/template/mademenu</path>
-         <path>js/made/menu</path>
-         <path>adminhtml/default/default/template/mademenu</path>
+         <path>Made/Dibs</path>
+         <path>modules/Made_Dibs.xml</path>
       </path>
       <type>
          <type>file</type>
          <type>dir</type>
          <type>file</type>
-         <type>file</type>
-         <type>file</type>
-         <type>dir</type>
-         <type>dir</type>
-         <type>dir</type>
       </type>
       <include>
          <include/>
          <include/>
          <include/>
-         <include/>
-         <include/>
-         <include/>
-         <include/>
-         <include/>
       </include>
       <ignore>
-         <ignore/>
-         <ignore/>
-         <ignore/>
-         <ignore/>
-         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>
