@@ -284,8 +284,26 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
                 continue;
             }
 
+            switch ($code) {
+                case 'discount':
+                case 'giftcardaccount':
+                case 'ugiftcert':
+                    $value = -(abs($total->getValue()));
+                    break;
+                case 'shipping':
+                    // We have to somehow make sure that we use the correctly
+                    // calculated value, we can't rely on the shipping tax
+                    // being part of the quote totals
+                    $value = $order->getShippingTaxAmount()
+                        + $order->getShippingAmount();
+                    break;
+                default:
+                    $value = $total->getValue();
+            }
+            $amount = $this->formatAmount($value, $order->getOrderCurrencyCode());
+
             $row = '1;' . $total->getTitle() . ';' .
-                    $this->formatAmount($total->getValue(), $order->getOrderCurrencyCode()) . ';' .
+                    $amount . ';' .
                     $total->getCode();
 
             $fields->setData('oiRow' . $i++, $row);
