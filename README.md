@@ -16,3 +16,7 @@ Features
 	* Partial refunds of captured invoices
 	* Payment void
 	* Re-authorization of previously expired authorizations
+
+License
+--
+This project is licensed under the 4-clause BSD License, see [LICENSE](https://github.com/madepeople/Made_Dibs/blob/master/LICENSE)
