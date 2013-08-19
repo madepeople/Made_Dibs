@@ -152,6 +152,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                 $order->setStatus($newOrderStatus);
             }
 
+            $order->sendNewOrderEmail();
             $order->save();
             $write->commit();
         } catch (Exception $e) {
