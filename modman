@@ -1,2 +1,3 @@
 src/code/Dibs/*                 app/code/community/Made/Dibs/
 src/Made_Dibs.xml               app/etc/modules/Made_Dibs.xml
+package.xml                     var/connect/Made_Dibs.xml
