@@ -13,11 +13,9 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
      */
     public function redirectAction()
     {
-        $session = Mage::getSingleton('checkout/session');
-        $session->setDibsQuoteId($session->getQuoteId());
-        $this->getResponse()->setBody($this->getLayout()->createBlock('made_dibs/paymentwindow_redirect')->toHtml());
-        $session->unsQuoteId();
-        $session->unsRedirectUrl();
+        $redirectBlock = $this->getLayout()
+                ->createBlock('made_dibs/paymentwindow_redirect');
+        $this->getResponse()->setBody($redirectBlock->toHtml());
     }
 
     /**
@@ -26,7 +24,6 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
     public function cancelAction()
     {
         $session = Mage::getSingleton('checkout/session');
-        $session->setQuoteId($session->getDibsQuoteId(true));
         if ($session->getLastRealOrderId()) {
             $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
             if ($order->getId()) {
@@ -44,11 +41,6 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
      */
     public function returnAction()
     {
-        // We unset the cart because things are successful
-        $session = Mage::getSingleton('checkout/session');
-        $session->setQuoteId($session->getDibsQuoteId(true));
-        Mage::getSingleton('checkout/session')->getQuote()->setIsActive(false)->save();
-
         try {
             $this->callbackAction();
             $this->_redirect('checkout/onepage/success', array('_secure' => true));
