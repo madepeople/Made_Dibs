@@ -79,6 +79,16 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                 throw new Mage_Payment_Exception('Required field Order ID is missing');
             }
 
+            // Lock the order row to prevent double processing from the
+            // customer + callback
+            $resource = Mage::getModel('sales/order')->getResource();
+            $resource->getReadConnection()
+                    ->select()
+                    ->forUpdate()
+                    ->from($resource->getTable('sales/order'))
+                    ->where('increment_id = ?', $fields['orderId'])
+                    ->query();
+
             $order = Mage::getModel('sales/order')
                     ->loadByIncrementId($fields['orderId']);
 
@@ -112,8 +122,8 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             $write->beginTransaction();
             $order = $this->_initOrder();
             if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-                // Order is not in review state. It's possible that the payment has
-                // already been registered via a callback or similar.
+                // Order is not in review state. It's possible that the payment
+                // has already been registered via the callback.
                 $write->rollback();
                 return;
             }
