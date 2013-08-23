@@ -262,12 +262,9 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
                 continue;
             }
 
-            $qtyOrdered = (int)$item->getQtyOrdered();
-            $itemTax = $item->getTaxAmount()/$qtyOrdered;
-
-            $row = $qtyOrdered . ';' .
+            $row = (int)$item->getQtyOrdered() . ';' .
                     $item->getName() . ';' .
-                    $this->formatAmount($item->getPrice() + $itemTax, $order->getOrderCurrencyCode()) . ';' .
+                    $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode()) . ';' .
                     $item->getSku();
 
             $fields->setData('oiRow' . $i++, $row);
