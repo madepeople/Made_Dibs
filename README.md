@@ -42,6 +42,8 @@ Mage::app()->reinitStores();
 
 After the above script has run it should be safe to remove/deactivate the other module.
 
+**CAUTION!** When you run this migration script you risk losing references to old DIBS transactions that other modules might use. The real solution to this problem is creating a legacy model that handles the old data, or simply not running this script, keeping the old module and disabling it from the Magento admin interface.
+
 License
 --
 This project is licensed under the 4-clause BSD License, see [LICENSE](https://github.com/madepeople/Made_Dibs/blob/master/LICENSE)

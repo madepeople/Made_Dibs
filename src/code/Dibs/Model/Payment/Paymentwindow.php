@@ -264,7 +264,7 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
 
             $row = (int)$item->getQtyOrdered() . ';' .
                     $item->getName() . ';' .
-                    $this->formatAmount($item->getRowTotalInclTax(), $order->getOrderCurrencyCode()) . ';' .
+                    $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode()) . ';' .
                     $item->getSku();
 
             $fields->setData('oiRow' . $i++, $row);
