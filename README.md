@@ -1,4 +1,4 @@
-DIBS Payment Module
+DIBS Payment Window Module for Magento
 ==
 
 Implementation of the DIBS Payment Window gateway &amp; API solution.

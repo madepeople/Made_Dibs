@@ -99,9 +99,8 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
      * case the gateway sends the user to the success page the same time as
      * the DIBS callback calls us.
      *
-     * We have everything within a transaction to prevent race conditions.
-     *
-     * @TODO: Use row-level locking on the order row instead, so we can scale
+     * We have everything within a transaction with row-locking to prevent
+     * race conditions.
      *
      * @return void
      */
