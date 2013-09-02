@@ -270,9 +270,9 @@ class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abst
             $fields->setData('oiRow' . $i++, $row);
         }
 
-        // Shipping, tax and discounts needs to be separate rows, use the
-        // quote totals to determine what to print and exclude things like
-        // tax,
+        // Shipping, giftcards and discounts needs to be separate rows, use the
+        // quote totals to determine what to print and exclude values that
+        // are already included from other places
         $quoteId = $order->getQuoteId();
         $quote = Mage::getModel('sales/quote')->load($quoteId);
         $quote->collectTotals();
