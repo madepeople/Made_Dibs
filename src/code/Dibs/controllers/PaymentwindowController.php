@@ -1,7 +1,5 @@
 <?php
 /**
- * Basic redirect and success actions for the DIBS payment window implementation
- *
  * @author jonathan@madepeople.se
  */
 class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Action
@@ -36,8 +34,8 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
     /**
      * We have returned from the DIBS gateway and they claim everything is
      * epic. Since there is a callback functionality and we need to handle
-     * it the same way as this, we just us the callbackAction to sort the
-     * order information
+     * it the same way as this, we just use the callbackAction to process
+     * the order information
      */
     public function returnAction()
     {
@@ -68,7 +66,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             $fields = $this->getRequest()->getPost();
 
             if (!isset($fields['orderId'])) {
-                throw new Mage_Payment_Exception('Required field Order ID is missing');
+                throw new Mage_Payment_Exception('Required field orderId is missing');
             }
 
             // Lock the order row to prevent double processing from the
@@ -129,7 +127,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             $fields = $this->getRequest()->getPost();
             $mac = $methodInstance->calculateMac($fields);
             if ($mac != $fields['MAC']) {
-                throw new Mage_Payment_Exception('MAC verification failed for order "' . $fields['orderID'] . '"');
+                throw new Mage_Payment_Exception('MAC verification failed for order #' . $fields['orderId']);
             }
 
             $payment = $order->getPayment();
@@ -143,7 +141,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                 $payment->setIsTransactionClosed(0);
                 $payment->authorize(false, $order->getGrandTotal());
             } else {
-                // Order has been fully paid, we can't do any extra API magic
+                // The order has been fully paid
                 $payment->setPreparedMessage('DIBS - Payment Successful.');
                 $payment->registerCaptureNotification($order->getGrandTotal());
             }
