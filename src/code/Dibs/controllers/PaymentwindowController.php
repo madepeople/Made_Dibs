@@ -83,7 +83,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
                     ->loadByIncrementId($fields['orderId']);
 
             if (!$order->getId()) {
-                throw new Mage_Payment_Exception('Order with ID "' . $fields['orderID'] . '" could not be found');
+                throw new Mage_Payment_Exception('Order with ID "' . $fields['orderId'] . '" could not be found');
             }
 
             $this->_order = $order;
