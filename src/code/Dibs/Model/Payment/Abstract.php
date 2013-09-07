@@ -239,7 +239,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     }
 
     /**
-     * Authroize a new payment. This requires all credit card information to be
+     * Authorize a new payment. This requires all credit card information to be
      * passed into the payment object (in our case this is typically comes from
      * a <form>)
      *
@@ -249,24 +249,37 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     public function authorize(Varien_Object $payment, $amount)
     {
         $order = $payment->getOrder();
+        $info = $this->getInfoInstance();
 
         $parameters = array(
-            'currency' => $this->_getCurrencyInfo($order->getOrderCurrencyCode()),
+            'currency' => $this->getDibsCurrencyCode($order->getOrderCurrencyCode()),
             'clientIp' => Mage::helper('core/http')->getRemoteAddr(),
             'orderId' => $order->getIncrementId(),
-            'cardNumber' => $payment->getData(),
-            'startMonth' => $payment->getData(),
-            'startYear' => $payment->getData(),
-            'issueNumber' => $payment->getData(),
-            'expMonth' => $payment->getData(),
-            'expYear' => $payment->getData(),
-            'cvc' => $payment->getData(),
+            'cardNumber' => $info->getCcNumber(),
+            'expMonth' => $info->getCcExpMonth(),
+            'expYear' => substr($info->getCcExpYear(), -2),
+            'cvc' => $info->getCcCid(),
             'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
 
             // Their endpoint needs booleans as strings
             'doReAuthIfExpired' => (bool)$this->getConfigData('reauth_expired')
                     ? 'true' : 'false',
         );
+
+        $ssIssue = $info->getCcSsIssue();
+        if (!empty($ssIssue)) {
+            $parameters['issueNumber'] = $ssIssue;
+        }
+
+        $ssStartMonth = $info->getCcSsStartMonth();
+        if (!empty($ssStartMonth)) {
+            $parameters['startMonth'] = $ssStartMonth;
+        }
+
+        $ssStartYear = $info->getCcSsStartYear();
+        if (!empty($ssStartYear)) {
+            $parameters['startYear'] = substr($ssStartYear, -2);
+        }
 
         if ($this->getConfigData('test')) {
             $parameters['test'] = 'true';
@@ -276,7 +289,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
         $payment->setTransactionId($result['transactionId'])
                 ->setIsTransactionApproved(true)
                 ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $result);
-        
+
         return $this;
     }
 
