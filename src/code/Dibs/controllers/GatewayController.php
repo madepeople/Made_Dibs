@@ -2,7 +2,7 @@
 /**
  * @author jonathan@madepeople.se
  */
-class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Action
+class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
 {
     protected $_order;
 
@@ -12,7 +12,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
     public function redirectAction()
     {
         $redirectBlock = $this->getLayout()
-                ->createBlock('made_dibs/paymentwindow_redirect');
+                ->createBlock('made_dibs/gateway_redirect');
         $this->getResponse()->setBody($redirectBlock->toHtml());
     }
 
@@ -120,7 +120,7 @@ class Made_Dibs_PaymentWindowController extends Mage_Core_Controller_Front_Actio
             $methodInstance = $order->getPayment()
                     ->getMethodInstance();
 
-            if (!($methodInstance instanceof Made_Dibs_Model_Payment_Paymentwindow)) {
+            if (!($methodInstance instanceof Made_Dibs_Model_Payment_Gateway)) {
                 throw new Mage_Payment_Exception('Order isn\'t a DIBS order');
             }
 

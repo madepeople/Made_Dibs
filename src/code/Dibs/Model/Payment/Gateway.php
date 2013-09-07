@@ -7,7 +7,7 @@
  */
 class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
 {
-    protected $_code = 'made_dibs_paymentwindow';
+    protected $_code = 'made_dibs_gateway';
 
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
 
@@ -148,7 +148,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
      */
     public function getOrderPlaceRedirectUrl()
     {
-        return Mage::getUrl('made_dibs/paymentwindow/redirect',
+        return Mage::getUrl('made_dibs/gateway/redirect',
                 array('_secure' => true));
     }
 
@@ -159,7 +159,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
      */
     public final function getReturnUrl()
     {
-        return Mage::getUrl('made_dibs/paymentwindow/return',
+        return Mage::getUrl('made_dibs/gateway/return',
                 array('_secure' => true));
     }
 
@@ -172,7 +172,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
      */
     public final function getCancelUrl()
     {
-        return Mage::getUrl('made_dibs/paymentwindow/cancel',
+        return Mage::getUrl('made_dibs/gateway/cancel',
                 array('_secure' => true));
     }
 
@@ -183,7 +183,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
      */
     public final function getCallbackUrl()
     {
-        return Mage::getUrl('made_dibs/paymentwindow/callback',
+        return Mage::getUrl('made_dibs/gateway/callback',
                 array('_secure' => true));
     }
 

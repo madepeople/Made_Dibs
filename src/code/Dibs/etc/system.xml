@@ -3,8 +3,8 @@
     <sections>
         <payment>
             <groups>
-                <made_dibs_paymentwindow translate="label" module="made_dibs">
-                    <label>DIBS Payment Window</label>
+                <made_dibs_gateway translate="label" module="made_dibs">
+                    <label>DIBS Payment Window - Gateway Solution</label>
                     <sort_order>670</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -135,7 +135,7 @@
                             <frontend_class>validate-number</frontend_class>
                         </sort_order>
                     </fields>
-                </made_dibs_paymentwindow>
+                </made_dibs_gateway>
             </groups>
         </payment>
     </sections>

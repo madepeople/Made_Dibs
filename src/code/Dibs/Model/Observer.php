@@ -16,7 +16,7 @@ class Made_Dibs_Model_Observer
                 ->getOrder()
                 ->getPayment();
 
-        if (!($payment->getMethodInstance() instanceof Made_Dibs_Model_Payment_Abstract)) {
+        if (!($payment->getMethodInstance() instanceof Made_Dibs_Model_Payment_Gateway)) {
             return;
         }
 

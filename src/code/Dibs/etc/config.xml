@@ -65,15 +65,15 @@
     </frontend>
     <default>
         <payment>
-            <made_dibs_paymentwindow>
+            <made_dibs_gateway>
                 <active>0</active>
                 <reauth_expired>1</reauth_expired>
-                <title>DIBS Payment Window</title>
+                <title>DIBS Payment Window - Gateway Solution</title>
                 <test>1</test>
                 <capture_now>1</capture_now>
                 <allowspecific>0</allowspecific>
                 <model>made_dibs/payment_gateway</model>
-            </made_dibs_paymentwindow>
+            </made_dibs_gateway>
         </payment>
     </default>
 </config>
