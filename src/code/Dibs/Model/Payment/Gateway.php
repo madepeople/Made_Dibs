@@ -1,11 +1,11 @@
 <?php
 /**
- * Basic implementation of the DIBS payment window solution
+ * Implementation of the DIBS payment window solution
  *
  * @see http://tech.dibspayment.com/integration_methods/dibs_payment_window/
  * @author jonathan@madepeople.se
  */
-class Made_Dibs_Model_Payment_Paymentwindow extends Made_Dibs_Model_Payment_Abstract
+class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
 {
     protected $_code = 'made_dibs_paymentwindow';
 

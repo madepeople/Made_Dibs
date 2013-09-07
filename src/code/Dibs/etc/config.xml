@@ -30,6 +30,13 @@
                 <class>Made_Dibs_Helper</class>
             </made_dibs>
         </helpers>
+        <resources>
+            <made_dibs_setup>
+                <setup>
+                    <module>Made_Dibs</module>
+                </setup>
+            </made_dibs_setup>
+        </resources>
     </global>
     <frontend>
         <secure_url>
@@ -65,7 +72,7 @@
                 <test>1</test>
                 <capture_now>1</capture_now>
                 <allowspecific>0</allowspecific>
-                <model>made_dibs/payment_paymentwindow</model>
+                <model>made_dibs/payment_gateway</model>
             </made_dibs_paymentwindow>
         </payment>
     </default>
