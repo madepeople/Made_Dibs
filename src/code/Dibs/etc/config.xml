@@ -74,6 +74,14 @@
                 <allowspecific>0</allowspecific>
                 <model>made_dibs/payment_gateway</model>
             </made_dibs_gateway>
+            <made_dibs_api>
+                <active>0</active>
+                <reauth_expired>1</reauth_expired>
+                <title>DIBS Payment Window - API Solution</title>
+                <test>1</test>
+                <allowspecific>0</allowspecific>
+                <model>made_dibs/payment_api</model>
+            </made_dibs_api>
         </payment>
     </default>
 </config>

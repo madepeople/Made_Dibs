@@ -4,14 +4,12 @@
  */
 abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Method_Abstract
 {
-    protected $_isGateway = true;
     protected $_canCapture = true;
     protected $_canCapturePartial = true;
     protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
     protected $_canVoid = true;
     protected $_canOrder = true;
-    protected $_canManageRecurringProfiles = false;
 
     /**
      * Currency codes mapped by code and float precision
@@ -177,5 +175,177 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     public function getConfigPaymentAction()
     {
         return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
+    }
+
+    /**
+     * DIBS JSON endpoint API call method.
+     *
+     * This will fail if an HTTP 423 code is returned. It means we need to try
+     * again later.
+     *
+     * @param type $method
+     * @param type $parameters
+     */
+    protected function _apiCall($method, $parameters = array())
+    {
+        $baseEndpoint = 'https://api.dibspayment.com/merchant/v1/JSON/Transaction/';
+        $endpoint = $baseEndpoint . $method;
+
+        $httpClient = new Zend_Http_Client($endpoint);
+        $httpClient->setAdapter('Zend_Http_Client_Adapter_Curl');
+        $httpClient->getAdapter()
+                ->setCurlOption(CURLOPT_SSLVERSION, 3);
+
+        $httpClient->setHeaders('Content-Type', 'application/x-www-form-urlencoded');
+
+        $parameters = array_merge(array(
+            'merchantId' => $this->getConfigData('merchant_id'),
+        ), $parameters);
+
+        $mac = $this->calculateMac($parameters);
+        $parameters['MAC'] = $mac;
+
+        $httpClient->setParameterPost('request',
+                Mage::helper('core')->jsonEncode($parameters));
+
+        $httpClient->setMethod(Zend_Http_Client::POST);
+        $response = $httpClient->request();
+        if ($response->getStatus() !== 200) {
+            Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getCode());
+        }
+
+        $result = Mage::helper('core')->jsonDecode($response->getBody());
+
+        switch ($result['status']) {
+            case 'ACCEPT':
+                $message = 'Successfully issued ' . $method . ' for transaction "' . $parameters['transactionId'] . '" at DIBS.';
+                Mage::getSingleton('adminhtml/session')->addSuccess($message);
+                break;
+            case 'PENDING':
+                $message = $method . ' successfully issued for transaction "' . $parameters['transactionId'] . '", but it is pending batch processing at DIBS.';
+                Mage::getSingleton('adminhtml/session')->addSuccess($message);
+                break;
+            case 'DECLINE':
+                $message = $method . ' was declined: ' . $result['declineReason'];
+                Mage::throwException($message);
+                break;
+            case 'ERROR':
+                $message = 'There was an error issuing ' . $method . ' for the transaction: ' . $result['declineReason'];
+                Mage::throwException($message);
+                break;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Authroize a new payment. This requires all credit card information to be
+     * passed into the payment object (in our case this is typically comes from
+     * a <form>)
+     *
+     * @param Varien_Object $payment
+     * @param int|float $amount
+     */
+    public function authorize(Varien_Object $payment, $amount)
+    {
+        $order = $payment->getOrder();
+
+        $parameters = array(
+            'currency' => $this->_getCurrencyInfo($order->getOrderCurrencyCode()),
+            'clientIp' => Mage::helper('core/http')->getRemoteAddr(),
+            'orderId' => $order->getIncrementId(),
+            'cardNumber' => $payment->getData(),
+            'startMonth' => $payment->getData(),
+            'startYear' => $payment->getData(),
+            'issueNumber' => $payment->getData(),
+            'expMonth' => $payment->getData(),
+            'expYear' => $payment->getData(),
+            'cvc' => $payment->getData(),
+            'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
+
+            // Their endpoint needs booleans as strings
+            'doReAuthIfExpired' => (bool)$this->getConfigData('reauth_expired')
+                    ? 'true' : 'false',
+        );
+
+        if ($this->getConfigData('test')) {
+            $parameters['test'] = 'true';
+        }
+
+        $result = $this->_apiCall('AuthorizeCard', $parameters);
+        $payment->setTransactionId($result['transactionId'])
+                ->setIsTransactionApproved(true)
+                ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $result);
+        
+        return $this;
+    }
+
+    /**
+     * Capture an authorized payment. This should only be available if there
+     * is an open authorized transaction already.
+     *
+     * @param Varien_Object $payment
+     * @param int|float $amount
+     */
+    public function capture(Varien_Object $payment, $amount)
+    {
+        $order = $payment->getOrder();
+
+        $parameters = array(
+            'transactionId' => $payment->getParentTransactionId(),
+            'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
+
+            // Their endpoint needs booleans as strings
+            'doReAuthIfExpired' => (bool)$this->getConfigData('reauth_expired')
+                    ? 'true' : 'false',
+        );
+
+        $this->_apiCall('CaptureTransaction', $parameters);
+
+        return $this;
+    }
+
+    /**
+     * Refund specified amount for payment
+     *
+     * @param Varien_Object $payment
+     * @param float $amount
+     *
+     * @return Mage_Payment_Model_Abstract
+     */
+    public function refund(Varien_Object $payment, $amount)
+    {
+        $order = $payment->getOrder();
+
+        list($transactionId,) = explode('-', $payment->getParentTransactionId());
+        $parameters = array(
+            'transactionId' => $transactionId,
+            'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
+        );
+
+        $this->_apiCall('RefundTransaction', $parameters);
+
+        $payment->setTransactionId("{$transactionId}-refund")
+                ->setTransactionIsClosed(true);
+
+        return $this;
+    }
+
+    /**
+     * Void previously *authorized* payment.
+     *
+     * @param Varien_Object $payment
+     * @return Mage_Payment_Model_Abstract
+     */
+    public function void(Varien_Object $payment)
+    {
+        list($transactionId,) = explode('-', $payment->getParentTransactionId());
+        $parameters = array(
+            'transactionId' => $transactionId,
+        );
+
+        $this->_apiCall('CancelTransaction', $parameters);
+
+        return $this;
     }
 }
