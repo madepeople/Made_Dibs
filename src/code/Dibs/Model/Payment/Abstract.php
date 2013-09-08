@@ -210,7 +210,9 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
 
         $httpClient->setMethod(Zend_Http_Client::POST);
         $response = $httpClient->request();
-        if ($response->getStatus() !== 200) {
+        if ($response->getStatus() === 423) {
+            Mage::throwException('The DIBS request limit has been reached, please try again later: http://tech.dibs.dk/script_limitations/');
+        } else if ($response->getStatus() !== 200) {
             Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getCode());
         }
 
