@@ -220,11 +220,11 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
 
         switch ($result['status']) {
             case 'ACCEPT':
-                $message = 'Successfully issued ' . $method . ' for transaction "' . $parameters['transactionId'] . '" at DIBS.';
+                $message = 'Successfully issued ' . $method . ' at DIBS.';
                 Mage::getSingleton('adminhtml/session')->addSuccess($message);
                 break;
             case 'PENDING':
-                $message = $method . ' successfully issued for transaction "' . $parameters['transactionId'] . '", but it is pending batch processing at DIBS.';
+                $message = $method . ' successfully issued, but it is pending batch processing at DIBS.';
                 Mage::getSingleton('adminhtml/session')->addSuccess($message);
                 break;
             case 'DECLINE':
@@ -261,11 +261,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
             'expMonth' => $info->getCcExpMonth(),
             'expYear' => substr($info->getCcExpYear(), -2),
             'cvc' => $info->getCcCid(),
-            'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
-
-            // Their endpoint needs booleans as strings
-            'doReAuthIfExpired' => (bool)$this->getConfigData('reauth_expired')
-                    ? 'true' : 'false',
+            'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode())
         );
 
         $ssIssue = $info->getCcSsIssue();
@@ -289,7 +285,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
 
         $result = $this->_apiCall('AuthorizeCard', $parameters);
         $payment->setTransactionId($result['transactionId'])
-                ->setIsTransactionApproved(true)
+                ->setIsTransactionClosed(false)
                 ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $result);
 
         return $this;
