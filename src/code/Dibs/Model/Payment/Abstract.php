@@ -173,7 +173,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
      * @param type $method
      * @param type $parameters
      */
-    protected function _apiCall($method, $parameters = array())
+    protected function _apiCall($method, &$parameters = array())
     {
         $baseEndpoint = 'https://api.dibspayment.com/merchant/v1/JSON/Transaction/';
         $endpoint = $baseEndpoint . $method;
@@ -288,9 +288,15 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     public function capture(Varien_Object $payment, $amount)
     {
         $order = $payment->getOrder();
+        $transactionId = $payment->getParentTransactionId();
+        if (empty($transactionId)) {
+            // @see Made_Dibs_Model_Observer ~ line 58
+            $transactionId = $payment->getAuthorizeTransactionId();
+            $payment->setParentTransactionId($transactionId);
+        }
 
         $parameters = array(
-            'transactionId' => $payment->getParentTransactionId(),
+            'transactionId' => $transactionId,
             'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
 
             // Their endpoint needs booleans as strings
@@ -298,7 +304,14 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
                     ? 'true' : 'false',
         );
 
-        $this->_apiCall('CaptureTransaction', $parameters);
+        $result = $this->_apiCall('CaptureTransaction', $parameters);
+
+        $transactionString = $transactionId . '-capture-'
+                . $this->formatAmount($order->getBaseTotalDue(), $order->getOrderCurrencyCode());
+        $payment->setTransactionId($transactionString)
+                ->setIsTransactionClosed(true)
+                ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
+                        array_merge($result, $parameters));
 
         return $this;
     }
@@ -321,10 +334,14 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
             'amount' => $this->formatAmount($amount, $order->getOrderCurrencyCode()),
         );
 
-        $this->_apiCall('RefundTransaction', $parameters);
+        $result = $this->_apiCall('RefundTransaction', $parameters);
 
-        $payment->setTransactionId("{$transactionId}-refund")
-                ->setTransactionIsClosed(true);
+        $transactionString = $transactionId . '-refund-'
+                . $this->formatAmount($order->getBaseTotalRefunded(), $order->getOrderCurrencyCode());
+        $payment->setTransactionId($transactionString)
+                ->setIsTransactionClosed(true)
+                ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
+                        array_merge($result, $parameters));
 
         return $this;
     }
@@ -342,8 +359,10 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
             'transactionId' => $transactionId,
         );
 
-        $this->_apiCall('CancelTransaction', $parameters);
+        $result = $this->_apiCall('CancelTransaction', $parameters);
 
+        $payment->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
+                        array_merge($result, $parameters));
         return $this;
     }
 }

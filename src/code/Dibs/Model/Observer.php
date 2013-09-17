@@ -55,6 +55,6 @@ class Made_Dibs_Model_Observer
         // Our capture method requires a parent transaction, and last_trans_id
         // might actually be something else in other cases, but here we choose
         // that the parent one for capture is the last one, from authorization
-        $payment->setParentTransactionId($payment->getLastTransId());
+        $payment->setAuthorizeTransactionId($payment->getLastTransId());
     }
 }
