@@ -86,12 +86,12 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
         $language = Mage::getStoreConfig('general/locale/code')
                  ?: 'en_GB';
 
-        $amount = $this->formatAmount($order->getGrandTotal(), $order->getOrderCurrencyCode());
+        $totalAmount = $this->formatAmount($order->getGrandTotal(), $order->getOrderCurrencyCode());
 
         $fields = new Varien_Object;
         $fields->setMerchant($this->getConfigData('merchant_id'))
                 ->setCurrency($this->getDibsCurrencyCode($order->getOrderCurrencyCode()))
-                ->setAmount($amount)
+                ->setAmount($totalAmount)
                 ->setLanguage($language)
                 ->setData('orderId', $order->getIncrementId())
                 ->setData('acceptReturnUrl', $this->getReturnUrl())
@@ -126,9 +126,8 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
         $fields->setData('billingEmail', $order->getCustomerEmail());
         $fields->setData('billingMobile', $order->getTelephone());
 
-        $fields->setData('oiTypes', 'QUANTITY;DESCRIPTION;AMOUNT;ITEMID');
-        $fields->setData('oiNames', 'Quantity;Product;Amount;SKU');
-
+        $oiData = array();
+        $calculatedAmount = 0;
         $i = 1;
         foreach ($order->getAllItems() as $item) {
             if ($item->getParentItemId()) {
@@ -136,12 +135,14 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                 continue;
             }
 
+            $amount = $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode());
             $row = (int)$item->getQtyOrdered() . ';' .
                     $item->getName() . ';' .
-                    $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode()) . ';' .
+                    $amount . ';' .
                     $item->getSku();
 
-            $fields->setData('oiRow' . $i++, $row);
+            $oiData['oiRow' . $i++] = $row;
+            $calculatedAmount += bcmul($amount, $item->getQtyOrdered());
         }
 
         // Shipping, giftcards and discounts needs to be separate rows, use the
@@ -174,13 +175,22 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                 default:
                     $value = $total->getValue();
             }
-            $amount = $this->formatAmount($value, $order->getOrderCurrencyCode());
 
+            $amount = $this->formatAmount($value, $order->getOrderCurrencyCode());
             $row = '1;' . $total->getTitle() . ';' .
                     $amount . ';' .
                     $total->getCode();
 
-            $fields->setData('oiRow' . $i++, $row);
+            $oiData['oiRow' . $i++] = $row;
+            $calculatedAmount += $amount;
+        }
+
+        if ($totalAmount === $calculatedAmount) {
+            $fields->setData('oiTypes', 'QUANTITY;DESCRIPTION;AMOUNT;ITEMID');
+            $fields->setData('oiNames', 'Quantity;Product;Amount;SKU');
+            foreach ($oiData as $key => $value) {
+                $fields->setData($key, $value);
+            }
         }
 
         $hmac = $this->calculateMac($fields->toArray());
