@@ -11,6 +11,13 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
      */
     public function redirectAction()
     {
+        $session = Mage::getSingleton('checkout/session');
+        $quote = $session->getQuote();
+        if (!$quote || !$quote->getId()) {
+            // Redirect to the start page if the session has timed out
+            return $this->_redirect('');
+        }
+
         $redirectBlock = $this->getLayout()
                 ->createBlock('made_dibs/gateway_redirect');
         $this->getResponse()->setBody($redirectBlock->toHtml());
