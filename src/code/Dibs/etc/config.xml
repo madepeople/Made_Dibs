@@ -74,6 +74,18 @@
             </sales_model_service_quote_submit_before>
         </events>
     </frontend>
+    <crontab>
+        <jobs>
+            <cancel_old_pending_gateway_orders>
+                <schedule>
+                    <cron_expr>0 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>made_dibs/observer::cancelOldPendingGatewayOrders</model>
+                </run>
+            </cancel_old_pending_gateway_orders>
+        </jobs>
+    </crontab>
     <default>
         <payment>
             <made_dibs_gateway>

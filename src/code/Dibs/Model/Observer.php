@@ -57,4 +57,36 @@ class Made_Dibs_Model_Observer
         // that the parent one for capture is the last one, from authorization
         $payment->setAuthorizeTransactionId($payment->getLastTransId());
     }
+
+    /**
+     * This method cleans up old pending_gateway orders as they are probably
+     * left over from customers who closed their browsers, lost internet
+     * connectivity, etc.
+     *
+     * @param Varien_Object $observer
+     */
+    public function cancelOldPendingGatewayOrders($observer)
+    {
+        $date = date('Y-m-d H:i:s', strtotime('-1 days'));
+        $orderCollection = Mage::getModel('sales/order')
+                ->addFieldToFilter('state', 'payment_review')
+                ->addAttributeToFilter('created_at', array('lt' => $date));
+
+        foreach ($orderCollection as $order) {
+            if (!$order->canCancel()) {
+                continue;
+            }
+
+            $method = $order->getPayment()
+                    ->getMethod();
+
+            if (!strstr($method, 'made_dibs')) {
+                continue;
+            }
+
+            $order->cancel();
+            $order->addStatusHistoryComment('The order was automatically cancelled due to more than 24 hours of gateway inactivity.');
+            $order->save();
+        }
+    }
 }
