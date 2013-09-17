@@ -16,6 +16,19 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
 
     /**
+     * We always just place a simple order, waiting for gateway action.
+     *
+     * Also, we shouldn't know/guess if it's an authorization or capture
+     * that's going to happen at the gateway.
+     *
+     * @return string
+     */
+    public function getConfigPaymentAction()
+    {
+        return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
+    }
+
+    /**
      * Order placement gateway form POST redirect in-the-middle URL
      *
      * @return string

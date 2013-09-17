@@ -165,19 +165,6 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
     }
 
     /**
-     * We always just place a simple order, waiting for gateway action.
-     *
-     * Also, we shouldn't know/guess if it's an authorization or capture
-     * that's going to happen at the gateway.
-     *
-     * @return string
-     */
-    public function getConfigPaymentAction()
-    {
-        return Mage_Payment_Model_Method_Abstract::ACTION_ORDER;
-    }
-
-    /**
      * DIBS JSON endpoint API call method.
      *
      * This will fail if an HTTP 423 code is returned. It means we need to try

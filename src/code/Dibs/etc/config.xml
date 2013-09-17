@@ -37,6 +37,17 @@
                 </setup>
             </made_dibs_setup>
         </resources>
+        <events>
+            <sales_order_payment_capture>
+                <observers>
+                    <authorize_before_capture>
+                        <type>singleton</type>
+                        <class>made_dibs/observer</class>
+                        <method>authorizeBeforeCapture</method>
+                    </authorize_before_capture>
+                </observers>
+            </sales_order_payment_capture>
+        </events>
     </global>
     <frontend>
         <secure_url>

@@ -137,7 +137,7 @@
                     </fields>
                 </made_dibs_gateway>
                 <made_dibs_api translate="label" module="made_dibs">
-                    <label>DIBS Payment Window - API Solution</label>
+                    <label>DIBS Payment Window - API Solution (Requires PCI Certification)</label>
                     <sort_order>671</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -145,6 +145,7 @@
                     <fields>
                         <active translate="label">
                             <label>Enabled</label>
+                            <comment><![CDATA[<span style="color:#ff0000;font-weight:bold;">Warning!</span> In order to use this feature, your Magento store must meet the PCI standards requirements. Please contact DIBS for more information.]]></comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>1</sort_order>
@@ -209,7 +210,7 @@
                             <comment>"Authorize and Capture" means money is drawn directly when an order is placed, otherwise an invoice needs to be manually created and captured.</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>paygate/authorizenet_source_paymentAction</source_model>
-                            <sort_order>20</sort_order>
+                            <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
