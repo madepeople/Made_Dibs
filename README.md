@@ -31,7 +31,7 @@ $connection = $this->getConnection();
 $connection->delete($this->getTable('core_config_data'), 'path LIKE "payment/dibs%"');
 
 $connection->update($this->getTable('sales_flat_order_payment'), array(
-    'method' => 'made_dibs_paymentwindow'
+    'method' => 'made_dibs_gateway'
 ), "method LIKE 'dibs%'");
 
 $this->endSetup();
@@ -43,6 +43,10 @@ Mage::app()->reinitStores();
 After the above script has run it should be safe to remove/deactivate the other module.
 
 **CAUTION!** When you run this migration script you risk losing references to old DIBS transactions that other modules might use. The real solution to this problem is creating a legacy model that handles the old data, or simply not running this script, keeping the old module and disabling it from the Magento admin interface.
+
+Known Issues
+--
+
 
 License
 --
