@@ -46,8 +46,8 @@ After the above script has run it should be safe to remove/deactivate the other 
 
 Known Limitations
 --
-* Direct bank payment orders sometimes return with the "PENDING" status. These final status of these payments can't be determined via the Payment Window API but must be manually checked in the DIBS administration interface.
-* The way Magentos calculates and rounds numbers differs from the way DIBS does it. Also, Payment Window only supports two decimals in amounts as well as VAT percent, meaning there is no reliable way to leave the total calculation to either part. Because of this, the implementation doesn't send the complete order information to DIBS in the case of the Magento grand total differing from the separate order row information, allowing all different orders to be passed through without rounding issues.
+* Direct bank payments sometimes return with status "PENDING". The final status of these payments can't be determined via the Payment Window API but must be manually checked in the DIBS administration interface.
+* The way Magento calculates and rounds numbers differs from the way DIBS does it. Also, Payment Window only supports two decimals in amounts as well as VAT percent, meaning there is no reliable way to leave the total calculation to either part. Because of this, the implementation doesn't send the complete order information to DIBS if the Magento grand total differs from the individual order row information, allowing all orders to be passed through without rounding issues.
 
 License
 --
