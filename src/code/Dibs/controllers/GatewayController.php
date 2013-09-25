@@ -8,15 +8,22 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
 
     /**
      * When Magento claims the order has been successfully placed
+     *
+     * We save the last_quote_id in a special place to prevent hacky customers
+     * from entering checkout/success when they're only on the gateway,
+     * confusing merchants, tracking (analytics and affiliates) as well as
+     * the hacky customers themselves
      */
     public function redirectAction()
     {
         $session = Mage::getSingleton('checkout/session');
-        $orderId = $session->getLastRealOrderId();
-        if (!$orderId) {
+        $lastQuoteId = $session->getLastQuoteId();
+        $session->unsLastQuoteId();
+        if (!$lastQuoteId) {
             // Redirect to the start page if the session has timed out
-            return $this->_redirect('');
+            return $this->_redirect('checkout/onepage/failure');
         }
+        $session->setDibsLastQuoteId($lastQuoteId);
 
         $redirectBlock = $this->getLayout()
                 ->createBlock('made_dibs/gateway_redirect');
@@ -47,6 +54,9 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
     public function returnAction()
     {
         try {
+            $session = Mage::getSingleton('checkout/session');
+            $session->setLastQuoteId($session->getDibsLastQuoteId());
+            $session->unsDibsLastQuoteId();
             $this->callbackAction();
             $this->_redirect('checkout/onepage/success', array('_secure' => true));
         } catch (Exception $e) {
