@@ -20,7 +20,7 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
         $lastQuoteId = $session->getLastQuoteId();
         $session->unsLastQuoteId();
         if (!$lastQuoteId) {
-            // Redirect to the start page if the session has timed out
+            // Redirect to the failure page in case of a timeout or hacking
             return $this->_redirect('checkout/onepage/failure');
         }
         $session->setDibsLastQuoteId($lastQuoteId);
