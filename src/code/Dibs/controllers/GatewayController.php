@@ -12,8 +12,8 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
     public function redirectAction()
     {
         $session = Mage::getSingleton('checkout/session');
-        $quote = $session->getQuote();
-        if (!$quote || !$quote->getId()) {
+        $orderId = $session->getLastRealOrderId();
+        if (!$orderId) {
             // Redirect to the start page if the session has timed out
             return $this->_redirect('');
         }
