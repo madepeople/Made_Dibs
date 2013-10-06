@@ -69,6 +69,7 @@ class Made_Dibs_Model_Observer
     {
         $date = date('Y-m-d H:i:s', strtotime('-1 days'));
         $orderCollection = Mage::getModel('sales/order')
+                ->getCollection()
                 ->addFieldToFilter('state', 'payment_review')
                 ->addAttributeToFilter('created_at', array('lt' => $date));
 
