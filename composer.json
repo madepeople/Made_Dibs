@@ -1,6 +1,7 @@
 {
     "name": "madepeople/made-dibs",
     "license": "BSD-4-Clause",
+    "type": "magento-module",
     "description": "Magento DIBS Implementation",
     "authors": [
         {
