@@ -62,6 +62,35 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
         'VEB' => array('862', 2), 'YUM' => array('891', 2), 'ZWD' => array('716', 2));
 
     /**
+     * Mapping of the DIBS internal status codes
+     *
+     * @see http://tech.dibspayment.com/transstatuspml (Return codes)
+     * @var array
+     */
+    private $_statusCodes = array(
+        '0' => 'transaction inserted (not approved)',
+        '1' => 'declined',
+        '2' => 'authorization approved',
+        '3' => 'capture sent to acquirer',
+        '4' => 'capture declined by acquirer',
+        '5' => 'capture completed',
+        '6' => 'authorization deleted',
+        '7' => 'capture balanced',
+        '8' => 'partially refunded and balanced',
+        '9' => 'refund sent to acquirer',
+        '10' => 'refund declined',
+        '11' => 'refund completed',
+        '12' => 'capture pending',
+        '13' => '"ticket" transaction',
+        '14' => 'deleted "ticket" transaction',
+        '15' => 'refund pending',
+        '16' => 'waiting for shop approval',
+        '17' => 'declined by DIBS',
+        '18' => 'multicap transaction open',
+        '19' => 'multicap transaction closed',
+    );
+
+    /**
      * Get the DIBS currency information
      *
      * @param string $currencyCode
@@ -200,7 +229,7 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
         if ($response->getStatus() === 423) {
             Mage::throwException('The DIBS request limit has been reached, please try again later: http://tech.dibs.dk/script_limitations/');
         } else if ($response->getStatus() !== 200) {
-            Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getCode());
+            Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getStatus());
         }
 
         $result = Mage::helper('core')->jsonDecode($response->getBody());
@@ -225,6 +254,87 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
         }
 
         return $result;
+    }
+
+    /**
+     * Call a method in the Flexwin API, we use this for transaction information
+     *
+     * @param $method
+     * @param array $parameters
+     */
+    protected function _apiCallFlexwin($method, &$parameters = array())
+    {
+        $baseEndpoint = 'https://payment.architrade.com/cgi-adm/';
+        $endpoint = $baseEndpoint . $method;
+
+        $username = $this->getConfigData('api_username');
+        $password = $this->getConfigData('api_password');
+
+        $parameters = array_merge(array(
+            'merchantId' => $this->getConfigData('merchant_id'),
+        ), $parameters);
+
+        $httpClient = new Zend_Http_Client($endpoint);
+        $httpClient->setAdapter('Zend_Http_Client_Adapter_Curl');
+        $httpClient->getAdapter()
+            ->setCurlOption(CURLOPT_SSLVERSION, 3);
+
+        $httpClient->setAuth($username, $password, Zend_Http_Client::AUTH_BASIC)
+            ->setHeaders('Content-Type', 'application/x-www-form-urlencoded')
+            ->setParameterGet($parameters)
+            ->setMethod(Zend_Http_Client::POST);
+
+        $response = $httpClient->request();
+        if ($response->getStatus() === 423) {
+            Mage::throwException('The DIBS request limit has been reached, please try again later: http://tech.dibs.dk/script_limitations/');
+        } else if ($response->getStatus() !== 200) {
+            Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getStatus());
+        }
+
+        $result = array();
+        parse_str($response->getBody(), $result);
+        return $result;
+    }
+
+    /**
+     * If the API username and password have been entered, a lot of magic is
+     * unlocked, such as updating transaction information using a button
+     * reporting information about the transaction to the store owner etc
+     *
+     * @return bool
+     */
+    public function canFetchTransactionInfo()
+    {
+        $username = trim($this->getConfigData('api_username'));
+        $password = trim($this->getConfigData('api_password'));
+
+        return !empty($username) && !empty($password);
+    }
+
+    /**
+     * Fetches information about the current transaction. Used to find out if
+     * a pending payment is updated and has become accepted or denied
+     *
+     * @param Mage_Payment_Model_Info $payment
+     * @param string $transactionId
+     * @return array
+     */
+    public function fetchTransactionInfo(Mage_Payment_Model_Info $payment, $transactionId)
+    {
+        $transaction = $payment->getTransaction($transactionId);
+        $data = $transaction->getAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS);
+
+        $parameters = array(
+            'transact' => $transactionId
+        );
+        $result = $this->_apiCallFlexwin('payinfo.cgi', $parameters);
+        switch ($result['actioncode']) {
+            case 'd100':
+                $data['status'] = 'ACCEPTED';
+                break;
+        }
+        return false;
+        return $data;
     }
 
     /**

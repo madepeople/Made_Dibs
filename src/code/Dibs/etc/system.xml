@@ -71,6 +71,23 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </hmac_key>
+                        <api_username>
+                            <label>API Username</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_username>
+                        <api_password>
+                            <label>API Password</label>
+                            <comment>Used for fetching transaction information</comment>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_password>
                         <capture_now translate="label comment">
                             <label>Capture Payments Directly</label>
                             <comment><![CDATA[When set to 'No', payments will only be authorized in the gateway, and captured when an invoice is captured online. It also creates room for refunds and voids. The easiest and most common method is to set this to 'Yes'.]]></comment>
@@ -102,6 +119,7 @@
                         </payment_type>
                         <order_status translate="label">
                             <label>New Order Status</label>
+                            <comment>State 'processing' order statuses</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_order_status_processing</source_model>
                             <sort_order>70</sort_order>

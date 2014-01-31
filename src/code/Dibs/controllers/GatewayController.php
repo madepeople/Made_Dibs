@@ -147,29 +147,37 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                 throw new Mage_Payment_Exception('MAC verification failed for order #' . $fields['orderId']);
             }
 
-            $payment = $order->getPayment();
-            $payment->setTransactionId($fields['transaction'])
-                    ->setIsTransactionApproved(true)
-                    ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
+            switch ($fields['status']) {
+                case 'PENDING':
+                    $order->addStatusHistoryComment('DIBS - Payment is pending batch processing.');
+                case 'ACCEPTED':
+                    $payment = $order->getPayment();
+                    $payment->setTransactionId($fields['transaction'])
+                            ->setIsTransactionApproved(true)
+                            ->setTransactionAdditionalInfo(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS, $fields);
 
-            if (empty($fields['capturenow'])) {
-                // Leave the transaction open for captures/refunds/etc
-                $payment->setPreparedMessage('DIBS - Payment Authorized.');
-                $payment->setIsTransactionClosed(0);
-                $payment->authorize(false, $order->getGrandTotal());
-            } else {
-                // The order has been fully paid
-                $payment->setPreparedMessage('DIBS - Payment Successful.');
-                $payment->registerCaptureNotification($order->getGrandTotal());
+                    if (empty($fields['capturenow'])) {
+                        // Leave the transaction open for captures/refunds/etc
+                        $payment->setPreparedMessage('DIBS - Payment Authorized.');
+                        $payment->setIsTransactionClosed(0);
+                        $payment->authorize(false, $order->getGrandTotal());
+                    } else {
+                        // The order has been fully paid
+                        $payment->setPreparedMessage('DIBS - Payment Successful.');
+                        $payment->registerCaptureNotification($order->getGrandTotal());
+                    }
+
+                    $newOrderStatus = $methodInstance->getConfigData('order_status');
+                    if (!empty($newOrderStatus)) {
+                        $order->setStatus($newOrderStatus);
+                    }
+                    $order->sendNewOrderEmail();
+                    $order->save();
+                    break;
+                default:
+                    throw new Exception('Payment not accepted by DIBS: ' . $fields['declineReason']);
             }
 
-            $newOrderStatus = $methodInstance->getConfigData('order_status');
-            if (!empty($newOrderStatus)) {
-                $order->setStatus($newOrderStatus);
-            }
-
-            $order->sendNewOrderEmail();
-            $order->save();
             $write->commit();
         } catch (Exception $e) {
             $write->rollback();
