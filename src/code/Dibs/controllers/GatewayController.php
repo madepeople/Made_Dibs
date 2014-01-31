@@ -7,6 +7,43 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
     protected $_order;
 
     /**
+     * Initialize the order object for the current transaction
+     *
+     * @throws Mage_Payment_Exception
+     */
+    protected function _initOrder()
+    {
+        if (!$this->_order) {
+            $fields = $this->getRequest()->getPost();
+
+            if (!isset($fields['orderId'])) {
+                throw new Mage_Payment_Exception('Required field orderId is missing');
+            }
+
+            // Lock the order row to prevent double processing from the
+            // customer + callback
+            $resource = Mage::getModel('sales/order')->getResource();
+            $resource->getReadConnection()
+                ->select()
+                ->forUpdate()
+                ->from($resource->getTable('sales/order'))
+                ->where('increment_id = ?', $fields['orderId'])
+                ->query();
+
+            $order = Mage::getModel('sales/order')
+                ->loadByIncrementId($fields['orderId']);
+
+            if (!$order->getId()) {
+                throw new Mage_Payment_Exception('Order with ID "' . $fields['orderId'] . '" could not be found');
+            }
+
+            $this->_order = $order;
+        }
+
+        return $this->_order;
+    }
+
+    /**
      * When Magento claims the order has been successfully placed
      *
      * We save the last_quote_id in a special place to prevent hacky customers
@@ -70,43 +107,6 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
 
             $this->_redirect('checkout/onepage/failure');
         }
-    }
-
-    /**
-     * Initialize the order object for the current transaction
-     *
-     * @throws Mage_Payment_Exception
-     */
-    protected function _initOrder()
-    {
-        if (!$this->_order) {
-            $fields = $this->getRequest()->getPost();
-
-            if (!isset($fields['orderId'])) {
-                throw new Mage_Payment_Exception('Required field orderId is missing');
-            }
-
-            // Lock the order row to prevent double processing from the
-            // customer + callback
-            $resource = Mage::getModel('sales/order')->getResource();
-            $resource->getReadConnection()
-                    ->select()
-                    ->forUpdate()
-                    ->from($resource->getTable('sales/order'))
-                    ->where('increment_id = ?', $fields['orderId'])
-                    ->query();
-
-            $order = Mage::getModel('sales/order')
-                    ->loadByIncrementId($fields['orderId']);
-
-            if (!$order->getId()) {
-                throw new Mage_Payment_Exception('Order with ID "' . $fields['orderId'] . '" could not be found');
-            }
-
-            $this->_order = $order;
-        }
-
-        return $this->_order;
     }
 
     /**
