@@ -148,11 +148,17 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                 continue;
             }
 
+            $name = $item->getName();
+            if (empty($name)) {
+                // Gift wraps etc don't have names (what else do they have?) DIBS needs the name.
+                $name = $item->getSku();
+            }
+
             $amount = $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode());
             $row = (int)$item->getQtyOrdered() . ';' .
-                    $item->getName() . ';' .
-                    $amount . ';' .
-                    $item->getSku();
+                $name . ';' .
+                $amount . ';' .
+                $item->getSku();
 
             $oiData['oiRow' . $i++] = $row;
             $calculatedAmount += bcmul($amount, $item->getQtyOrdered());
