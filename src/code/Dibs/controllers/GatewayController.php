@@ -149,7 +149,7 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
 
             switch ($fields['status']) {
                 case 'PENDING':
-                    $order->addStatusHistoryComment('DIBS - Payment is pending batch processing.');
+                    // Pending should be the same as accepted in this stage
                 case 'ACCEPTED':
                     $payment = $order->getPayment();
                     $payment->setTransactionId($fields['transaction'])
@@ -173,6 +173,8 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                     }
                     $order->sendNewOrderEmail();
                     $order->save();
+                    $order->getResource()
+                        ->updateGridRecords($order->getId());
                     break;
                 default:
                     throw new Exception('Payment not accepted by DIBS: ' . $fields['declineReason']);
