@@ -333,7 +333,6 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
                 $data['status'] = 'ACCEPTED';
                 break;
         }
-        return false;
         return $data;
     }
 
