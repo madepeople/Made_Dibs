@@ -171,10 +171,8 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                     if (!empty($newOrderStatus)) {
                         $order->setStatus($newOrderStatus);
                     }
-                    $order->sendNewOrderEmail();
                     $order->save();
-                    $order->getResource()
-                        ->updateGridRecords($order->getId());
+                    $order->sendNewOrderEmail();
                     break;
                 default:
                     throw new Exception('Payment not accepted by DIBS: ' . $fields['declineReason']);
