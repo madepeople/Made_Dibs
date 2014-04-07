@@ -88,16 +88,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </api_password>
-                        <capture_now translate="label comment">
-                            <label>Capture Payments Directly</label>
-                            <comment><![CDATA[When set to 'No', payments will only be authorized in the gateway, and captured when an invoice is captured online. It also creates room for refunds and voids. The easiest and most common method is to set this to 'Yes'.]]></comment>
+                        <payment_action translate="label">
+                            <label>Payment Action</label>
+                            <comment>"Authorize and Capture" means money is drawn directly when an order is placed, otherwise an invoice needs to be manually created and captured.</comment>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>paygate/authorizenet_source_paymentAction</source_model>
                             <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </capture_now>
+                            <show_in_store>0</show_in_store>
+                        </payment_action>
                         <reauth_expired translate="label comment">
                             <label>Re-authorize Expired Transactions</label>
                             <comment><![CDATA[If set to 'Yes', the DIBS server will attempt to capture expired authorizations (more than 7 days old). This is achieved through an initial re-authorisation of the original transaction, followed by a capture process.]]></comment>

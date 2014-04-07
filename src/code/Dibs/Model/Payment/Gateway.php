@@ -8,12 +8,27 @@
 class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
 {
     protected $_isGateway = true;
+    protected $_isInitializeNeeded = true;
     protected $_canUseInternal = false;
     protected $_canManageRecurringProfiles = false;
 
     protected $_code = 'made_dibs_gateway';
 
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
+
+    /**
+     * Instantiate state and set it to state object
+     *
+     * @param string $paymentAction
+     * @param Varien_Object
+     */
+    public function initialize($paymentAction, $stateObject)
+    {
+        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+        $stateObject->setState($state);
+        $stateObject->setStatus('pending_payment');
+        $stateObject->setIsNotified(false);
+    }
 
     /**
      * We always just place a simple order, waiting for gateway action.
@@ -120,7 +135,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
             $fields->setTest('1');
         }
 
-        if ($this->getConfigData('capture_now')) {
+        if ($this->getConfigData('payment_action') === Mage_Paygate_Model_Authorizenet::ACTION_AUTHORIZE_CAPTURE) {
             $fields->setData('capturenow', '1');
         }
 

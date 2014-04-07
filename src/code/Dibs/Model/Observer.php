@@ -5,25 +5,6 @@
 class Made_Dibs_Model_Observer
 {
     /**
-     * We use an observer to set the order to a payment pending state, making
-     * sure that we follow the Magento payment flow
-     *
-     * @param Varien_Event_Observer $observer
-     */
-    public function setTransactionToPendingGateway(Varien_Event_Observer $observer)
-    {
-        $payment = $observer->getEvent()
-                ->getOrder()
-                ->getPayment();
-
-        if (!($payment->getMethodInstance() instanceof Made_Dibs_Model_Payment_Gateway)) {
-            return;
-        }
-
-        $payment->setIsTransactionPending(true);
-    }
-
-    /**
      * We need to call the authorize function separately in order to maintain
      * correct transaction hierarchy when using the authorize+capture action,
      * and the only way to do that seems to be from within the
@@ -70,7 +51,7 @@ class Made_Dibs_Model_Observer
         $date = date('Y-m-d H:i:s', strtotime('-1 days'));
         $orderCollection = Mage::getModel('sales/order')
                 ->getCollection()
-                ->addFieldToFilter('state', 'payment_review')
+                ->addFieldToFilter('state', Mage_Sales_Model_Order::STATE_PENDING_PAYMENT)
                 ->addAttributeToFilter('created_at', array('lt' => $date));
 
         foreach ($orderCollection as $order) {
