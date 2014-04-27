@@ -194,10 +194,14 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
             }
 
             switch ($code) {
-                case 'discount':
                 case 'giftcardaccount':
+                case 'giftwrapping':
+                case 'discount':
                 case 'ugiftcert':
                     $value = -(abs($total->getValue()));
+                    if (empty($value)) {
+                        continue 2;
+                    }
                     break;
                 case 'shipping':
                     // We have to somehow make sure that we use the correctly
@@ -210,10 +214,15 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                     $value = $total->getValue();
             }
 
+            $title = $total->getTitle();
+            if (empty($title)) {
+                $title = $code;
+            }
+
             $amount = $this->formatAmount($value, $order->getOrderCurrencyCode());
-            $row = '1;' . $total->getTitle() . ';' .
+            $row = '1;' . $title . ';' .
                     $amount . ';' .
-                    $total->getCode();
+                    $code;
 
             $oiData['oiRow' . $i++] = $row;
             $calculatedAmount += $amount;
