@@ -62,17 +62,6 @@
                 </args>
             </made_dibs>
         </routers>
-        <events>
-            <sales_model_service_quote_submit_before>
-                <observers>
-                    <set_transaction_to_pending_gateway>
-                        <type>singleton</type>
-                        <class>made_dibs/observer</class>
-                        <method>setTransactionToPendingGateway</method>
-                    </set_transaction_to_pending_gateway>
-                </observers>
-            </sales_model_service_quote_submit_before>
-        </events>
     </frontend>
     <crontab>
         <jobs>
@@ -93,7 +82,7 @@
                 <reauth_expired>1</reauth_expired>
                 <title>DIBS Payment Window - Gateway Solution</title>
                 <test>1</test>
-                <capture_now>1</capture_now>
+                <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>
                 <model>made_dibs/payment_gateway</model>
                 <void_on_cancel>1</void_on_cancel>

@@ -122,13 +122,13 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
     public function callbackAction()
     {
         $write = Mage::getSingleton('core/resource')
-                    ->getConnection('core_write');
+            ->getConnection('core_write');
 
         try {
             $write->beginTransaction();
             $order = $this->_initOrder();
-            if ($order->getState() !== Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW) {
-                // Order is not in review state. It's possible that the payment
+            if ($order->getState() !== Mage_Sales_Model_Order::STATE_PENDING_PAYMENT) {
+                // Order is not in pending payment state. It's possible that the payment
                 // has already been registered via the callback.
                 $write->rollback();
                 return;
@@ -149,7 +149,7 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
 
             switch ($fields['status']) {
                 case 'PENDING':
-                    $order->addStatusHistoryComment('DIBS - Payment is pending batch processing.');
+                    // Pending should be the same as accepted in this stage
                 case 'ACCEPTED':
                     $payment = $order->getPayment();
                     $payment->setTransactionId($fields['transaction'])
@@ -159,8 +159,8 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                     if (empty($fields['capturenow'])) {
                         // Leave the transaction open for captures/refunds/etc
                         $payment->setPreparedMessage('DIBS - Payment Authorized.');
-                        $payment->setIsTransactionClosed(0);
-                        $payment->authorize(false, $order->getGrandTotal());
+                        $payment->setIsTransactionClosed(0)
+                            ->registerAuthorizationNotification($order->getGrandTotal());
                     } else {
                         // The order has been fully paid
                         $payment->setPreparedMessage('DIBS - Payment Successful.');
@@ -171,8 +171,8 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                     if (!empty($newOrderStatus)) {
                         $order->setStatus($newOrderStatus);
                     }
-                    $order->sendNewOrderEmail();
                     $order->save();
+                    $order->sendNewOrderEmail();
                     break;
                 default:
                     throw new Exception('Payment not accepted by DIBS: ' . $fields['declineReason']);

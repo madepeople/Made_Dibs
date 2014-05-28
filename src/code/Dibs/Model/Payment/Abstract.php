@@ -262,9 +262,9 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
      * @param $method
      * @param array $parameters
      */
-    protected function _apiCallFlexwin($method, &$parameters = array())
+    protected function _apiCallFlexwin($method, &$parameters = array(), $parseResponse = true)
     {
-        $baseEndpoint = 'https://payment.architrade.com/cgi-adm/';
+        $baseEndpoint = 'https://payment.architrade.com/';
         $endpoint = $baseEndpoint . $method;
 
         $username = $this->getConfigData('api_username');
@@ -291,8 +291,13 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
             Mage::throwException('An error occurred when communicating with DIBS. HTTP status code: ' . $response->getStatus());
         }
 
-        $result = array();
-        parse_str($response->getBody(), $result);
+        if ($parseResponse === true) {
+            $result = array();
+            parse_str($response->getBody(), $result);
+        } else {
+            $result = $response->getBody();
+        }
+
         return $result;
     }
 
@@ -327,13 +332,19 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
         $parameters = array(
             'transact' => $transactionId
         );
-        $result = $this->_apiCallFlexwin('payinfo.cgi', $parameters);
-        switch ($result['actioncode']) {
-            case 'd100':
-                $data['status'] = 'ACCEPTED';
-                break;
+
+        $result = $this->_apiCallFlexwin('cgi-adm/payinfo.cgi', $parameters);
+        foreach ($result as $key => $value) {
+            $key = 'payinfo_' . $key;
+            $data[$key] = $value;
         }
-        return false;
+
+        $parameters = array_merge(array(
+            'merchant' => $this->getConfigData('merchant_id'),
+        ), $parameters);
+        $result = $this->_apiCallFlexwin('cardtype.pml', $parameters, false);
+        $data['paytype'] = $result;
+
         return $data;
     }
 

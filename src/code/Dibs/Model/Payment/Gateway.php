@@ -8,12 +8,27 @@
 class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
 {
     protected $_isGateway = true;
+    protected $_isInitializeNeeded = true;
     protected $_canUseInternal = false;
     protected $_canManageRecurringProfiles = false;
 
     protected $_code = 'made_dibs_gateway';
 
     const PAYMENTWINDOW_URL = 'https://sat1.dibspayment.com/dibspaymentwindow/entrypoint';
+
+    /**
+     * Instantiate state and set it to state object
+     *
+     * @param string $paymentAction
+     * @param Varien_Object
+     */
+    public function initialize($paymentAction, $stateObject)
+    {
+        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+        $stateObject->setState($state);
+        $stateObject->setStatus('pending_payment');
+        $stateObject->setIsNotified(false);
+    }
 
     /**
      * We always just place a simple order, waiting for gateway action.
@@ -120,7 +135,7 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
             $fields->setTest('1');
         }
 
-        if ($this->getConfigData('capture_now')) {
+        if ($this->getConfigData('payment_action') === Mage_Paygate_Model_Authorizenet::ACTION_AUTHORIZE_CAPTURE) {
             $fields->setData('capturenow', '1');
         }
 
@@ -179,10 +194,14 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
             }
 
             switch ($code) {
-                case 'discount':
                 case 'giftcardaccount':
+                case 'giftwrapping':
+                case 'discount':
                 case 'ugiftcert':
                     $value = -(abs($total->getValue()));
+                    if (empty($value)) {
+                        continue 2;
+                    }
                     break;
                 case 'shipping':
                     // We have to somehow make sure that we use the correctly
@@ -195,10 +214,15 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                     $value = $total->getValue();
             }
 
+            $title = $total->getTitle();
+            if (empty($title)) {
+                $title = $code;
+            }
+
             $amount = $this->formatAmount($value, $order->getOrderCurrencyCode());
-            $row = '1;' . $total->getTitle() . ';' .
+            $row = '1;' . $title . ';' .
                     $amount . ';' .
-                    $total->getCode();
+                    $code;
 
             $oiData['oiRow' . $i++] = $row;
             $calculatedAmount += $amount;
