@@ -475,4 +475,20 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
                         array_merge($result, $parameters));
         return $this;
     }
+
+    /**
+     * We use cancel as an alias for void(), because I can't think of any case
+     * where we want to cancel an order but keep the payment. And if that's the
+     * case, well... comment out this method.
+     *
+     * @param Varien_Object $payment
+     * @return $this|Mage_Payment_Model_Abstract
+     */
+    public function cancel(Varien_Object $payment)
+    {
+        if ($this->getConfigData('void_on_cancel')) {
+            $this->void($payment);
+        }
+        return $this;
+    }
 }
