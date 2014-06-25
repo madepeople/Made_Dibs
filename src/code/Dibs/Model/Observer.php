@@ -48,7 +48,7 @@ class Made_Dibs_Model_Observer
      */
     public function cancelOldPendingGatewayOrders(Varien_Event_Observer $observer)
     {
-        $date = date('Y-m-d H:i:s', strtotime('-1 days'));
+        $date = date('Y-m-d H:i:s', strtotime('-1 hour'));
         $orderCollection = Mage::getModel('sales/order')
                 ->getCollection()
                 ->addFieldToFilter('state', Mage_Sales_Model_Order::STATE_PENDING_PAYMENT)
@@ -67,7 +67,7 @@ class Made_Dibs_Model_Observer
             }
 
             $order->cancel();
-            $order->addStatusHistoryComment('The order was automatically cancelled due to more than 24 hours of gateway inactivity.');
+            $order->addStatusHistoryComment('The order was automatically cancelled due to more than 1 hour of gateway inactivity.');
             $order->save();
         }
     }
