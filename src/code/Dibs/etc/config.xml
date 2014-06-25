@@ -47,6 +47,15 @@
                     </authorize_before_capture>
                 </observers>
             </sales_order_payment_capture>
+            <payment_info_block_prepare_specific_information>
+                <observers>
+                    <add_dibs_payment_info>
+                        <type>singleton</type>
+                        <class>made_dibs/observer</class>
+                        <method>addDibsPaymentInfo</method>
+                    </add_dibs_payment_info>
+                </observers>
+            </payment_info_block_prepare_specific_information>
         </events>
     </global>
     <frontend>

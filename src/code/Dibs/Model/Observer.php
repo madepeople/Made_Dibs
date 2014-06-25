@@ -46,7 +46,7 @@ class Made_Dibs_Model_Observer
      *
      * @param Varien_Object $observer
      */
-    public function cancelOldPendingGatewayOrders($observer)
+    public function cancelOldPendingGatewayOrders(Varien_Event_Observer $observer)
     {
         $date = date('Y-m-d H:i:s', strtotime('-1 days'));
         $orderCollection = Mage::getModel('sales/order')
@@ -70,5 +70,40 @@ class Made_Dibs_Model_Observer
             $order->addStatusHistoryComment('The order was automatically cancelled due to more than 24 hours of gateway inactivity.');
             $order->save();
         }
+    }
+
+    /**
+     * We have some information from the payment which we add here so the order
+     * emails etc have credit card information.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function addDibsPaymentInfo(Varien_Event_Observer $observer)
+    {
+        $payment = $observer->getEvent()->getPayment();
+        $transport = $observer->getEvent()->getTransport();
+        $order = $payment->getOrder();
+
+        if (null === $order || !$order->getId()) {
+            return;
+        }
+
+        $transaction = Mage::getModel('sales/order_payment_transaction')
+            ->getCollection()
+            ->setOrderFilter($order)
+            ->addPaymentIdFilter($payment->getId())
+            ->addTxnTypeFilter(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH)
+            ->getIterator()
+            ->current();
+
+        if (null === $transaction || !$transaction->getId()) {
+            return;
+        }
+
+        $helper = Mage::helper('made_dibs');
+        $additionalData = $transaction->getAdditionalInformation(Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS);
+        $transport->setData($helper->__('Credit Card'), $additionalData['cardTypeName']);
+        $transport->setData($helper->__('Credit Card Number'), $additionalData['cardNumberMasked']);
+        $transport->setData($helper->__('Expiration Date'), $additionalData['expMonth'] . '/' . $additionalData['expYear']);
     }
 }
