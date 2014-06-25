@@ -94,6 +94,7 @@
                 <payment_action>authorize</payment_action>
                 <allowspecific>0</allowspecific>
                 <model>made_dibs/payment_gateway</model>
+                <void_on_cancel>1</void_on_cancel>
             </made_dibs_gateway>
             <made_dibs_api>
                 <active>0</active>
@@ -103,6 +104,7 @@
                 <allowspecific>0</allowspecific>
                 <payment_action>authorize</payment_action>
                 <model>made_dibs/payment_api</model>
+                <void_on_cancel>1</void_on_cancel>
             </made_dibs_api>
         </payment>
     </default>
