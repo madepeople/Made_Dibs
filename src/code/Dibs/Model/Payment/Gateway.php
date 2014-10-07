@@ -149,9 +149,12 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
             $fields->setData('billingAddress2', $street2);
         }
 
+        $email = $order->getCustomerEmail()
+            ?: $billingAddress->getEmail();
+
         $fields->setData('billingPostalCode', $billingAddress->getPostcode());
         $fields->setData('billingPostalPlace', $billingAddress->getCity());
-        $fields->setData('billingEmail', $order->getCustomerEmail());
+        $fields->setData('billingEmail', $email);
         $fields->setData('billingMobile', $order->getTelephone());
 
         $oiData = array();
