@@ -173,6 +173,12 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
                     }
                     $order->save();
                     $order->sendNewOrderEmail();
+
+                    // Newer versions of magento needs this when saving the order
+                    // inside a transaction, to update the order grid in admin
+                    $order->getResource()
+                        ->updateGridRecords(array($order->getId()));
+
                     break;
                 default:
                     throw new Exception('Payment not accepted by DIBS: ' . $fields['declineReason']);
