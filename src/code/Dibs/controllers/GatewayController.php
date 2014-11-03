@@ -135,7 +135,7 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
             }
 
             $methodInstance = $order->getPayment()
-                    ->getMethodInstance();
+                ->getMethodInstance();
 
             if (!($methodInstance instanceof Made_Dibs_Model_Payment_Gateway)) {
                 throw new Mage_Payment_Exception('Order isn\'t a DIBS order');
