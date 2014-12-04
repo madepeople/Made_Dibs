@@ -90,6 +90,25 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
     }
 
     /**
+     * DIBS doesn't like all characters when sent to them, this functions
+     * removes those characters. It seems like no *urlencode, html entity
+     * encode method works.
+     *
+     * @param $value
+     */
+    protected function _cleanDibsValue($value)
+    {
+        $search = array(
+            '&',
+            // Add more here
+        );
+
+        $replace = '';
+        $value = str_replace($search, $replace, $value);
+        return $value;
+    }
+
+    /**
      * Builds a Varien_Object containing all fields necessary to render
      * a payment redirect form
      *
@@ -140,22 +159,22 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
         }
 
         $billingAddress = $order->getBillingAddress();
-        $fields->setData('billingFirstName', $billingAddress->getFirstname());
-        $fields->setData('billingLastName', $billingAddress->getLastname());
-        $fields->setData('billingAddress', $billingAddress->getStreet(1));
+        $fields->setData('billingFirstName', $this->_cleanDibsValue($billingAddress->getFirstname()));
+        $fields->setData('billingLastName', $this->_cleanDibsValue($billingAddress->getLastname()));
+        $fields->setData('billingAddress', $this->_cleanDibsValue($billingAddress->getStreet(1)));
 
         $street2 = $billingAddress->getStreet(2);
         if (!empty($street2)) {
-            $fields->setData('billingAddress2', $street2);
+            $fields->setData('billingAddress2', $this->_cleanDibsValue($street2));
         }
 
         $email = $order->getCustomerEmail()
             ?: $billingAddress->getEmail();
 
-        $fields->setData('billingPostalCode', $billingAddress->getPostcode());
-        $fields->setData('billingPostalPlace', $billingAddress->getCity());
+        $fields->setData('billingPostalCode', $this->_cleanDibsValue($billingAddress->getPostcode()));
+        $fields->setData('billingPostalPlace', $this->_cleanDibsValue($billingAddress->getCity()));
         $fields->setData('billingEmail', $email);
-        $fields->setData('billingMobile', $order->getTelephone());
+        $fields->setData('billingMobile', $this->_cleanDibsValue($order->getTelephone()));
 
         $oiData = array();
         $calculatedAmount = 0;
@@ -172,11 +191,14 @@ class Made_Dibs_Model_Payment_Gateway extends Made_Dibs_Model_Payment_Abstract
                 $name = $item->getSku();
             }
 
+            $name = $this->_cleanDibsValue($name);
+            $sku = $this->_cleanDibsValue($item->getSku());
+
             $amount = $this->formatAmount($item->getPriceInclTax(), $order->getOrderCurrencyCode());
             $row = (int)$item->getQtyOrdered() . ';' .
                 $name . ';' .
                 $amount . ';' .
-                $item->getSku();
+                $sku;
 
             $oiData['oiRow' . $i++] = $row;
             $calculatedAmount += bcmul($amount, $item->getQtyOrdered());

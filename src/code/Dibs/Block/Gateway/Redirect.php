@@ -8,17 +8,16 @@
  */
 class Made_Dibs_Block_Gateway_Redirect extends Mage_Core_Block_Abstract
 {
-
     protected function _toHtml()
     {
         $gateway = Mage::getModel('made_dibs/payment_gateway');
 
         $form = new Varien_Data_Form();
         $form->setAction(Made_Dibs_Model_Payment_Gateway::PAYMENTWINDOW_URL)
-                ->setId('made_dibs_gateway')
-                ->setName('made_dibs_gateway')
-                ->setMethod('POST')
-                ->setUseContainer(true);
+            ->setId('made_dibs_gateway')
+            ->setName('made_dibs_gateway')
+            ->setMethod('POST')
+            ->setUseContainer(true);
 
         foreach ($gateway->getCheckoutFormFields()->toArray() as $field => $value) {
             $form->addField($field, 'hidden', array(
