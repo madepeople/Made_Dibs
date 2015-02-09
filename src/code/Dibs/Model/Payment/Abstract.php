@@ -209,9 +209,6 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
 
         $httpClient = new Zend_Http_Client($endpoint);
         $httpClient->setAdapter('Zend_Http_Client_Adapter_Curl');
-        $httpClient->getAdapter()
-            ->setCurlOption(CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-
         $httpClient->setHeaders('Content-Type', 'application/x-www-form-urlencoded');
 
         $parameters = array_merge(array(
@@ -276,8 +273,6 @@ abstract class Made_Dibs_Model_Payment_Abstract extends Mage_Payment_Model_Metho
 
         $httpClient = new Zend_Http_Client($endpoint);
         $httpClient->setAdapter('Zend_Http_Client_Adapter_Curl');
-        $httpClient->getAdapter()
-            ->setCurlOption(CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
         $httpClient->setAuth($username, $password, Zend_Http_Client::AUTH_BASIC)
             ->setHeaders('Content-Type', 'application/x-www-form-urlencoded')
