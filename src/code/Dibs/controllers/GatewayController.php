@@ -93,6 +93,12 @@ class Made_Dibs_GatewayController extends Mage_Core_Controller_Front_Action
         try {
             $session = Mage::getSingleton('checkout/session');
             $session->setLastQuoteId($session->getDibsLastQuoteId());
+            $quote = Mage::getModel('sales/quote')->load($session->getLastQuoteId());
+            if ($quote->getId()) {
+                // Make sure the quote is disabled, typically for logged in customers
+                $quote->setIsActive(false)
+                    ->save();
+            }
             $session->unsDibsLastQuoteId();
             $this->callbackAction();
             $this->_redirect('checkout/onepage/success', array('_secure' => true));
