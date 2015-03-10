@@ -78,7 +78,7 @@ class Made_Dibs_Model_Observer
      *
      * @param Varien_Event_Observer $observer
      */
-    public function addDibsPaymentInfo(Varien_Event_Observer $observer)
+    public function addDibsPaymentInfo(Mage_Cron_Model_Schedule $observer)
     {
         $payment = $observer->getEvent()->getPayment();
         if (!preg_match('/dibs/', $payment->getMethod())) {
